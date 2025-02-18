@@ -89,3 +89,7 @@ func (c *Client) Do(req *Request, body interface{}) (*http.Response, error) {
 
 	return resp, nil
 }
+
+func (c *Client) NewGetCustomerV1Request() GetCustomerV1Request {
+	return newGetCustomerV1Request(c)
+}
