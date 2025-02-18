@@ -78,6 +78,26 @@ func (v TimeValue) MarshalJSON() ([]byte, error) {
 	return json.Marshal(Value{Time(v)})
 }
 
+// UnmarshalJSON unmarshals a JSON byte slice into the Time
+func (v *TimeValue) UnmarshalJSON(data []byte) error {
+	//Unmarshal the data into a string
+	var value string
+	if err := json.Unmarshal(data, &value); err != nil {
+		return err
+	} else if value == "" {
+		return nil
+	}
+
+	//Parse the time
+	pt, err := parseTime(value)
+	if err != nil {
+		return err
+	}
+	*v = TimeValue{pt}
+
+	return nil
+}
+
 // StringValue is a wrapper for the string type, implementing the TypeValue interface and
 // when marshaled to JSON will be wrapped in a Value struct
 type StringValue string
@@ -117,19 +137,47 @@ func (v BoolValue) MarshalJSON() ([]byte, error) {
 	return json.Marshal(Value{bool(v)})
 }
 
-// TODO: Implemented MarshalJSON method? currently when time unmarshals and marshals back a Z is added after string
+// IntValue is a wrapper for the int type, implementing the TypeValue interface and
+// when marshaled to JSON will be wrapped in a Value struct
+type IntValue int
+
+// MarshalJSON marshals the IntValue into a JSON byte slice
+func (v IntValue) MarshalJSON() ([]byte, error) {
+	return json.Marshal(Value{int(v)})
+}
+
+// IsEmpty returns true if the IntValue is empty
+func (v IntValue) IsEmpty() bool {
+	return v == 0
+}
+
+// FloatValue is a wrapper for the float64 type, implementing the TypeValue interface and
+// when marshaled to JSON will be wrapped in a Value struct
+type FloatValue float64
+
+// MarshalJSON marshals the FloatValue into a JSON byte slice
+func (v FloatValue) MarshalJSON() ([]byte, error) {
+	return json.Marshal(Value{float64(v)})
+}
+
+// IsEmpty returns true if the FloatValue is empty
+func (v FloatValue) IsEmpty() bool {
+	return v == 0.0
+}
+
+// TODO: Implement MarshalJSON method? currently when time unmarshals and marshals back a Z is added after string
 // Time is a wrapper for the time.Time type with custom JSON marshaling to handle
 // the different time formats used by Visma
 type Time struct {
 	time.Time
 }
 
-// IsEmpty returns true if the TimeValue is empty
+// IsEmpty returns true if the Time is empty
 func (t Time) IsEmpty() bool {
 	return reflect.ValueOf(t).IsNil() || t.IsZero()
 }
 
-// UnmarshalJSON unmarshals a JSON byte slice into the TimeValue
+// UnmarshalJSON unmarshals a JSON byte slice into the Time
 func (t *Time) UnmarshalJSON(data []byte) error {
 	//Unmarshal the data into a string
 	var value string
@@ -139,25 +187,40 @@ func (t *Time) UnmarshalJSON(data []byte) error {
 		return nil
 	}
 
-	//For some reason Visma uses different time formats, so we need to try multiple formats
-	formats := []string{
-		time.RFC3339,
-		"2006-01-02T15:04:05",
-		"2006-01-02T15:04:05-07:00",
+	//Parse the time
+	pt, err := parseTime(value)
+	if err != nil {
+		return err
 	}
+	*t = Time{pt}
 
-	//Try to parse the time with the different formats
-	var err error
-	for _, format := range formats {
-		var pt time.Time
-		pt, err = time.Parse(format, value)
-		if err == nil {
-			//If we successfully parsed the time, set the TimeValue to the parsed time
-			*t = Time{pt}
-			return nil
-		}
-	}
+	return nil
+}
 
-	//If we couldn't parse the time, return the last error
-	return err
+// AddressValue is a wrapper for the Address type, implementing the TypeValue interface and
+// when marshaled to JSON will be wrapped in a Value struct
+type AddressValue Address
+
+// MarshalJSON marshals the Address into a JSON byte slice
+func (v AddressValue) MarshalJSON() ([]byte, error) {
+	return json.Marshal(Value{Address(v)})
+}
+
+// IsEmpty returns true if the Address is empty
+func (a AddressValue) IsEmpty() bool {
+	return a == AddressValue{}
+}
+
+// ContactValue is a wrapper for the Contact type, implementing the TypeValue interface and
+// when marshaled to JSON will be wrapped in a Value struct
+type ContactValue Contact
+
+// MarshalJSON marshals the Contact into a JSON byte slice
+func (v ContactValue) MarshalJSON() ([]byte, error) {
+	return json.Marshal(Value{Contact(v)})
+}
+
+// IsEmpty returns true if the Contact is empty
+func (a ContactValue) IsEmpty() bool {
+	return a == ContactValue{}
 }
