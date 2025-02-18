@@ -2,7 +2,6 @@ package vismanet
 
 import (
 	"encoding/json"
-	"errors"
 	"reflect"
 	"slices"
 	"strings"
@@ -25,45 +24,6 @@ type TypeValue interface {
 // Value is a wrapper for any type, implementing the TypeValue interface
 type Value struct {
 	Value interface{} `json:"value"`
-}
-
-// MarshalJSON marshals the Value into a JSON byte slice, omitting empty values if the struct field has the omitempty tag
-func (v Value) MarshalJSON() ([]byte, error) {
-	//Reflect the value and type of the value
-	val := reflect.ValueOf(v)
-	vt := reflect.TypeOf(v)
-
-	//Get the fields of the struct
-	fields := []reflect.StructField{}
-	for i := 0; i < vt.NumField(); i++ {
-		fields = append(fields, vt.Field(i))
-	}
-
-	//Iterate over the fields of the struct
-	for i := range fields {
-		//Get values of the json tag
-		var jsonTagValues []string
-		if tagValue, ok := fields[i].Tag.Lookup("json"); ok {
-			jsonTagValues = strings.Split(tagValue, ",")
-		}
-
-		//Skip if the json tag does not contain omitempty
-		if !slices.Contains(jsonTagValues, "omitempty") {
-			continue
-		}
-
-		//Replace json struct tag if the value is empty
-		if tv, ok := val.Field(i).Interface().(TypeValue); ok && tv.IsEmpty() {
-			old := `json:"` + fields[i].Tag.Get("json") + `"`
-			s := strings.ReplaceAll(string(fields[i].Tag), old, `json:"-"`)
-			fields[i].Tag = reflect.StructTag(s)
-		} else {
-			return nil, errors.New("struct field with omitempty tag must implement TypeValue interface")
-		}
-	}
-
-	//Create and marshal a new struct with the modified fields
-	return json.Marshal(val.Convert(reflect.StructOf(fields)).Interface())
 }
 
 // TimeValue is a wrapper for the Time type, implementing the TypeValue interface and
