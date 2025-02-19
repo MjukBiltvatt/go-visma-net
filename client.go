@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"net/http/httputil"
 	"net/url"
 )
 
@@ -70,6 +71,15 @@ func (c *Client) Do(req *Request, body interface{}) (*http.Response, error) {
 	resp, err := c.Http.Do(r)
 	if err != nil {
 		return resp, err
+	}
+
+	//Dump response if debugging is enabled
+	if c.Debug {
+		dump, err := httputil.DumpResponse(resp, true)
+		if err != nil {
+			return resp, fmt.Errorf("failed to dump response: %v", err)
+		}
+		fmt.Println(string(dump))
 	}
 
 	//Check response status code
