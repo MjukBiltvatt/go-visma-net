@@ -333,7 +333,7 @@ func newGetInvoiceV1Request(c *Client) GetInvoiceV1Request {
 	}
 }
 
-// GetInvoiceV1Request represents a request to get a customer
+// GetInvoiceV1Request represents a request to get invoices
 type GetInvoiceV1Request Request
 
 // SetPathParams sets the path parameters of the request
@@ -343,6 +343,9 @@ func (r *GetInvoiceV1Request) SetPathParams(params GetInvoiceV1PathParams) {
 
 // Do performs the request and returns the response
 func (r *GetInvoiceV1Request) Do() (GetInvoiceV1Response, error) {
+	if r.pathParams == nil {
+		r.SetPathParams(GetInvoiceV1PathParams{})
+	}
 	var invoices []ResponseInvoice
 	var invoice ResponseInvoice
 	resp, err := r.Client.Do((*Request)(r), &invoices, &invoice)
