@@ -203,8 +203,8 @@ type RequestInvoice struct {
 	CreditTermsID                     StringValue                   `json:"creditTermsId,omitempty"`
 	CurrencyID                        StringValue                   `json:"currencyId,omitempty"`
 	CustomerRefNumber                 StringValue                   `json:"customerRefNumber,omitempty"`
-	CashDiscountDate                  TimeValue                     `json:"cashDiscountDate,omitempty"`
-	DocumentDueDate                   TimeValue                     `json:"documentDueDate,omitempty"`
+	CashDiscountDate                  *TimeValue                    `json:"cashDiscountDate,omitempty"`
+	DocumentDueDate                   *TimeValue                    `json:"documentDueDate,omitempty"`
 	ExternalReference                 StringValue                   `json:"externalReference,omitempty"`
 	CustomerProject                   StringValue                   `json:"customerProject,omitempty"`
 	ExchangeRate                      FloatValue                    `json:"exchangeRate,omitempty"`
@@ -219,8 +219,8 @@ type RequestInvoice struct {
 	CustomerVatZoneID                 StringValue                   `json:"customerVatZoneId,omitempty"`
 	BillingAddress                    *RequestNestedAddress         `json:"billingAddress,omitempty"`
 	InvoiceContact                    *RequestInvoiceContact        `json:"invoiceContact,omitempty"`
-	StartDate                         TimeValue                     `json:"startDate,omitempty"`
-	EndDate                           TimeValue                     `json:"endDate,omitempty"`
+	StartDate                         *TimeValue                    `json:"startDate,omitempty"`
+	EndDate                           *TimeValue                    `json:"endDate,omitempty"`
 	AccountingCostRef                 StringValue                   `json:"accountingCostRef,omitempty"`
 	OriginatorDocRef                  StringValue                   `json:"originatorDocRef,omitempty"`
 	ContractDocRef                    StringValue                   `json:"contractDocRef,omitempty"`
@@ -236,8 +236,8 @@ type RequestInvoice struct {
 	CustomerNumber                    StringValue                   `json:"customerNumber"`
 	ChildCustomerNumber               StringValue                   `json:"childCustomerNumber,omitempty"`
 	ConsolidateInvoices               BoolValue                     `json:"consolidateInvoices,omitempty"`
-	DocumentDate                      TimeValue                     `json:"documentDate,omitempty"`
-	OriginalDocumentDate              TimeValue                     `json:"origDocumentDate,omitempty"`
+	DocumentDate                      *TimeValue                    `json:"documentDate,omitempty"`
+	OriginalDocumentDate              *TimeValue                    `json:"origDocumentDate,omitempty"`
 	Hold                              BoolValue                     `json:"hold,omitempty"`
 	PostPeriod                        StringValue                   `json:"postPeriod,omitempty"`
 	FinancialPeriod                   StringValue                   `json:"financialPeriod,omitempty"`
@@ -259,8 +259,8 @@ type RequestInvoiceLine struct {
 	ItemType                  StringValue      `json:"itemType,omitempty"`
 	TypeOfWork                StringValue      `json:"typeOfWork,omitempty"`
 	TaskID                    StringValue      `json:"taskId,omitempty"`
-	StartDate                 TimeValue        `json:"startDate,omitempty"`
-	EndDate                   TimeValue        `json:"endDate,omitempty"`
+	StartDate                 *TimeValue       `json:"startDate,omitempty"`
+	EndDate                   *TimeValue       `json:"endDate,omitempty"`
 	InventoryNumber           StringValue      `json:"inventoryNumber,omitempty"`
 	LineNumber                IntValue         `json:"lineNumber,omitempty"`
 	Description               StringValue      `json:"description,omitempty"`
@@ -277,8 +277,8 @@ type RequestInvoiceLine struct {
 	SalesPerson               StringValue      `json:"salesPerson,omitempty"`
 	DeferralSchedule          IntValue         `json:"deferralSchedule,omitempty"`
 	DeferralCode              StringValue      `json:"deferralCode,omitempty"`
-	TermStartDate             TimeValue        `json:"termStartDate,omitempty"`
-	TermEndDate               TimeValue        `json:"termEndDate,omitempty"`
+	TermStartDate             *TimeValue       `json:"termStartDate,omitempty"`
+	TermEndDate               *TimeValue       `json:"termEndDate,omitempty"`
 	Note                      StringValue      `json:"note,omitempty"`
 	BranchNumber              StringValue      `json:"branchNumber,omitempty"`
 }
