@@ -46,7 +46,7 @@ func (c *Client) Do(req *Request, body ...interface{}) (*http.Response, error) {
 		return nil, err
 	}
 
-	//Get body reader
+	//Get request body reader
 	var reqBody io.Reader
 	if req.Body != nil {
 		reqBody, err = req.Body.Reader()
@@ -133,4 +133,9 @@ func (c *Client) NewPostCustomerV1Request() PostCustomerV1Request {
 // NewGetInvoiceV1Request creates a new GetInvoiceV1Request
 func (c *Client) NewGetInvoiceV1Request() GetInvoiceV1Request {
 	return newGetInvoiceV1Request(c)
+}
+
+// NewPostInvoiceV2Request creates a new PostInvoiceV2Request
+func (c *Client) NewPostInvoiceV2Request() PostInvoiceV2Request {
+	return newPostInvoiceV2Request(c)
 }

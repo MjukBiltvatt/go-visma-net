@@ -163,7 +163,7 @@ func newPostCustomerV1Request(c *Client) PostCustomerV1Request {
 	}
 }
 
-// PostCustomerV1Request represents a request to get a customer
+// PostCustomerV1Request represents a request to create a new customer
 type PostCustomerV1Request Request
 
 // SetBody sets the body of the request

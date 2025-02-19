@@ -360,8 +360,40 @@ type GetInvoiceV1PathParams struct {
 	InvoiceNumber string `schema:"invoice_number"`
 }
 
-// GetInvoiceV1Response represents the response of the GetInvoiceV1Request and contains the resulting customer
+// GetInvoiceV1Response represents the response of the GetInvoiceV1Request and contains the resulting invoices
 type GetInvoiceV1Response struct {
 	Response
 	Invoices []ResponseInvoice
+}
+
+// =========================================================
+// ========================== POST =========================
+// =========================================================
+
+// newPostInvoiceV2Request creates a new PostInvoiceV2Request
+func newPostInvoiceV2Request(c *Client) PostInvoiceV2Request {
+	return PostInvoiceV2Request{
+		Client: c,
+		Method: "POST",
+		Path:   "controller/api/v2/customerinvoice",
+	}
+}
+
+// PostInvoiceV2Request represents a request to create a new invoice
+type PostInvoiceV2Request Request
+
+// SetBody sets the body of the request
+func (r *PostInvoiceV2Request) SetBody(body RequestInvoice) {
+	r.Body = JSONRequestBody{body}
+}
+
+// Do performs the request and returns the response
+func (r *PostInvoiceV2Request) Do() (PostInvoiceV2Response, error) {
+	resp, err := r.Client.Do((*Request)(r), nil)
+	return PostInvoiceV2Response{Response{resp}}, err
+}
+
+// PostInvoiceV2Response represents the response of the PostInvoiceV2Request
+type PostInvoiceV2Response struct {
+	Response
 }
