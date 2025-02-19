@@ -67,6 +67,11 @@ func (v StringValue) IsEmpty() bool {
 	return v == ""
 }
 
+// MarshalJSON marshals the StringValue into a JSON byte slice
+func (v StringValue) MarshalJSON() ([]byte, error) {
+	return json.Marshal(Value{string(v)})
+}
+
 // NullableStringValue is a wrapper for the string type that can be null, implementing the TypeValue
 // interface and when marshaled to JSON will be wrapped in a Value struct
 type NullableStringValue struct {
