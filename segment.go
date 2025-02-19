@@ -8,8 +8,8 @@ type Segment struct {
 	SegmentValueDescription string `json:"segmentValueDescription"`
 }
 
-// RequestBodySegment is a segment as represented in the body of requests to Visma.net
-type RequestBodySegment struct {
+// RequestSegment is a segment as represented in the body of requests to Visma.net
+type RequestSegment struct {
 	SegmentID    int    `json:"segmentId"`
 	SegmentValue string `json:"segmentValue"`
 }

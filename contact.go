@@ -14,8 +14,8 @@ type Contact struct {
 	Fax       string `json:"fax"`
 }
 
-// RequestBodyNestedContact is a contact nested in another entity in the body of requests to Visma.net
-type RequestBodyNestedContact struct {
+// RequestNestedContact is a contact nested in another entity in the body of requests to Visma.net
+type RequestNestedContact struct {
 	ContactID int         `json:"contactId,omitempty"`
 	Name      StringValue `json:"name,omitempty"`
 	Attention StringValue `json:"attention,omitempty"`
@@ -27,6 +27,6 @@ type RequestBodyNestedContact struct {
 }
 
 // MarshalJSON wraps the Contact in a Value struct and marshals it into a JSON byte slice
-func (v *RequestBodyNestedContact) MarshalJSON() ([]byte, error) {
+func (v *RequestNestedContact) MarshalJSON() ([]byte, error) {
 	return json.Marshal(Value{*v})
 }

@@ -23,8 +23,8 @@ type Country struct {
 	Metadata  Metadata `json:"metadata"`
 }
 
-// RequestBodyNestedAddress is an address nested in another entity in the body of requests to Visma.net
-type RequestBodyNestedAddress struct {
+// RequestNestedAddress is an address nested in another entity in the body of requests to Visma.net
+type RequestNestedAddress struct {
 	AddressLine1    StringValue `json:"addressLine1,omitempty"`
 	AddressLine2    StringValue `json:"addressLine2,omitempty"`
 	AddressLine3    StringValue `json:"addressLine3,omitempty"`
@@ -36,6 +36,6 @@ type RequestBodyNestedAddress struct {
 }
 
 // MarshalJSON wraps the Address in a Value struct and marshals it into a JSON byte slice
-func (v *RequestBodyNestedAddress) MarshalJSON() ([]byte, error) {
+func (v *RequestNestedAddress) MarshalJSON() ([]byte, error) {
 	return json.Marshal(Value{*v})
 }

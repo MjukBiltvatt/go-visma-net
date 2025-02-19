@@ -20,7 +20,7 @@ func TestGetCustomerV1(t *testing.T) {
 
 func TestPostCustomerV1(t *testing.T) {
 	req := testClient.NewPostCustomerV1Request()
-	req.SetBody(CustomerRequestBody{Name: "Test", MainAddress: &RequestBodyNestedAddress{AddressLine1: "123 Test St", City: "Testville", PostalCode: "12345", CountryID: "US"}})
+	req.SetBody(CustomerRequestBody{Name: "Test", MainAddress: &RequestNestedAddress{AddressLine1: "123 Test St", City: "Testville", PostalCode: "12345", CountryID: "US"}})
 	resp, err := req.Do()
 	debugDumpResponse(testClient, resp)
 	if err != nil {
