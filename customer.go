@@ -1,97 +1,107 @@
 package vismanet
 
-// Customer represents a customer as returned in a GET request
-type Customer struct {
-	InternalID                   int                `json:"internalId"`
-	Number                       string             `json:"number"`
-	Name                         string             `json:"name"`
-	Status                       string             `json:"status"`
-	MainAddress                  Address            `json:"mainAddress"`
-	MainContact                  Contact            `json:"mainContact"`
-	AccountReference             string             `json:"accountReference"`
-	ConsolidateInvoices          bool               `json:"consolidateInvoices"`
-	CustomerClass                Description        `json:"customerClass"`
-	CreditTerms                  Description        `json:"creditTerms"`
-	CurrencyID                   string             `json:"currencyId"`
-	CreditVerification           string             `json:"creditVerification"`
-	CreditLimit                  float64            `json:"creditLimit"`
-	CreditDaysPastDue            int                `json:"creditDaysPastDue"`
-	InvoiceAddress               Address            `json:"invoiceAddress"`
-	InvoiceContact               Contact            `json:"invoiceContact"`
-	PrintInvoices                bool               `json:"printInvoices"`
-	AcceptAutoInvoices           bool               `json:"acceptAutoInvoices"`
-	SendInvoicesByEmail          bool               `json:"sendInvoicesByEmail"`
-	SendDunningLettersViaEmail   bool               `json:"sendDunningLettersViaEMail"`
-	PrintDunningLetters          bool               `json:"printDunningLetters"`
-	PrintStatements              bool               `json:"printStatements"`
-	SendStatementsByEmail        bool               `json:"sendStatementsByEmail"`
-	PrintMultiCurrencyStatements bool               `json:"printMultiCurrencyStatements"`
-	StatementType                string             `json:"statementType"`
-	DeliveryAddress              Address            `json:"deliveryAddress"`
-	DeliveryContact              Contact            `json:"deliveryContact"`
-	VatRegistrationID            string             `json:"vatRegistrationId"`
-	CorporateID                  string             `json:"corporateId"`
-	VatZone                      Description        `json:"vatZone"`
-	Location                     Location           `json:"location"`
-	Attributes                   []Attribute        `json:"attributes"`
-	LastModifiedDateTime         Time               `json:"lastModifiedDateTime"`
-	CreatedDateTime              Time               `json:"createdDateTime"`
-	GLAccounts                   CustomerGLAccounts `json:"glAccounts"`
-	InvoiceToDefaultLocation     bool               `json:"invoiceToDefaultLocation"`
-	PaymentMethods               []PaymentMethod    `json:"paymentMethods"`
-	DefaultPaymentMethodID       string             `json:"defaultPaymentMethodId"`
-	ExcludeDebtCollection        bool               `json:"excludeDebtCollection"`
-}
+// ResponseCustomer is a customer as represented in a response from the Visma.net API
+type ResponseCustomer struct {
+	InternalID                   int                  `json:"internalId"`
+	Number                       string               `json:"number"`
+	Name                         string               `json:"name"`
+	Status                       string               `json:"status"`
+	AccountReference             string               `json:"accountReference"`
+	ConsolidateInvoices          bool                 `json:"consolidateInvoices"`
+	CurrencyID                   string               `json:"currencyId"`
+	CreditVerification           string               `json:"creditVerification"`
+	CreditLimit                  float64              `json:"creditLimit"`
+	CreditDaysPastDue            int                  `json:"creditDaysPastDue"`
+	PrintInvoices                bool                 `json:"printInvoices"`
+	AcceptAutoInvoices           bool                 `json:"acceptAutoInvoices"`
+	SendInvoicesByEmail          bool                 `json:"sendInvoicesByEmail"`
+	SendDunningLettersViaEmail   bool                 `json:"sendDunningLettersViaEMail"`
+	PrintDunningLetters          bool                 `json:"printDunningLetters"`
+	PrintStatements              bool                 `json:"printStatements"`
+	SendStatementsByEmail        bool                 `json:"sendStatementsByEmail"`
+	PrintMultiCurrencyStatements bool                 `json:"printMultiCurrencyStatements"`
+	StatementType                string               `json:"statementType"`
+	VatRegistrationID            string               `json:"vatRegistrationId"`
+	CorporateID                  string               `json:"corporateId"`
+	InvoiceToDefaultLocation     bool                 `json:"invoiceToDefaultLocation"`
+	DefaultPaymentMethodID       string               `json:"defaultPaymentMethodId"`
+	ExcludeDebtCollection        bool                 `json:"excludeDebtCollection"`
+	LastModifiedDateTime         Time                 `json:"lastModifiedDateTime"`
+	CreatedDateTime              Time                 `json:"createdDateTime"`
+	MainAddress                  *Address             `json:"mainAddress"`
+	MainContact                  *Contact             `json:"mainContact"`
+	InvoiceAddress               *Address             `json:"invoiceAddress"`
+	InvoiceContact               *Contact             `json:"invoiceContact"`
+	DeliveryAddress              *Address             `json:"deliveryAddress"`
+	DeliveryContact              *Contact             `json:"deliveryContact"`
+	CustomerClass                *IDDescriptionEntity `json:"customerClass"`
+	CreditTerms                  *IDDescriptionEntity `json:"creditTerms"`
+	VatZone                      *IDDescriptionEntity `json:"vatZone"`
 
-type CustomerGLAccounts struct {
-	CustomerLedgerAccount    Account    `json:"customerLedgerAccount"`
-	CustomerLedgerSubaccount Subaccount `json:"customerLedgerSubaccount"`
-	SalesAccount             Account    `json:"salesAccount"`
-	SalesNonTaxableAccount   Account    `json:"salesNonTaxableAccount"`
-	SalesSubaccount          Subaccount `json:"salesSubaccount"`
-	CashDiscountAccount      Account    `json:"cashDiscountAccount"`
-	CashDiscountSubaccount   Subaccount `json:"cashDiscountSubaccount"`
-	PrepaymentAccount        Account    `json:"prepaymentAccount"`
-	PrepaymentSubaccount     Subaccount `json:"prepaymentSubaccount"`
+	Location struct {
+		ID        string `json:"id"`
+		CountryID string `json:"countryId"`
+		Name      string `json:"name"`
+	} `json:"location"`
+
+	GLAccounts struct {
+		CustomerLedgerAccount    Account    `json:"customerLedgerAccount"`
+		CustomerLedgerSubaccount Subaccount `json:"customerLedgerSubaccount"`
+		SalesAccount             Account    `json:"salesAccount"`
+		SalesNonTaxableAccount   Account    `json:"salesNonTaxableAccount"`
+		SalesSubaccount          Subaccount `json:"salesSubaccount"`
+		CashDiscountAccount      Account    `json:"cashDiscountAccount"`
+		CashDiscountSubaccount   Subaccount `json:"cashDiscountSubaccount"`
+		PrepaymentAccount        Account    `json:"prepaymentAccount"`
+		PrepaymentSubaccount     Subaccount `json:"prepaymentSubaccount"`
+	} `json:"glAccounts"`
+
+	Attributes []struct {
+		//TODO
+	} `json:"attributes"`
+
+	PaymentMethods []struct {
+		//TODO
+	} `json:"paymentMethods"`
 }
 
 type CustomerRequestBody struct {
-	Number                       StringValue `json:"number,omitempty"`
-	Name                         StringValue `json:"name"`
-	Status                       StringValue `json:"status,omitempty"`
-	AccountReference             StringValue `json:"accountReference,omitempty"`
-	NumberOfEmployees            IntValue    `json:"numberOfEmployees,omitempty"`
-	ParentRecordNumber           StringValue `json:"parentRecordNumber,omitempty"`
-	CurrencyID                   StringValue `json:"currencyId,omitempty"`
-	CreditLimit                  IntValue    `json:"creditLimit,omitempty"`
-	CreditDaysPastDue            IntValue    `json:"creditDaysPastDue,omitempty"`
-	CustomerClassID              StringValue `json:"customerClassId,omitempty"`
-	CreditTermsID                StringValue `json:"creditTermsId,omitempty"`
-	PrintInvoices                BoolValue   `json:"printInvoices,omitempty"`
-	AcceptAutoInvoices           BoolValue   `json:"acceptAutoInvoices,omitempty"`
-	SendInvoicesByEmail          BoolValue   `json:"sendInvoicesByEmail,omitempty"`
-	SendDunningLettersViaEmail   BoolValue   `json:"sendDunningLettersViaEMail,omitempty"`
-	PrintDunningLetters          BoolValue   `json:"printDunningLetters,omitempty"`
-	PrintStatements              BoolValue   `json:"printStatements,omitempty"`
-	SendStatementsByEmail        BoolValue   `json:"sendStatementsByEmail,omitempty"`
-	PrintMultiCurrencyStatements BoolValue   `json:"printMultiCurrencyStatements,omitempty"`
-	InvoiceToDefaultLocation     BoolValue   `json:"invoiceToDefaultLocation,omitempty"`
-	VatRegistrationID            StringValue `json:"vatRegistrationId,omitempty"`
-	CorporateID                  StringValue `json:"corporateId,omitempty"`
-	VatZoneID                    StringValue `json:"vatZoneId,omitempty"`
-	GLN                          StringValue `json:"gln,omitempty"`
-	Note                         StringValue `json:"note,omitempty"`
-	MainAddress                  *Address    `json:"mainAddress,omitempty"`
-	MainContact                  *Contact    `json:"mainContact,omitempty"`
-	CreditVerification           StringValue `json:"creditVerification,omitempty"`
-	InvoiceAddress               *Address    `json:"invoiceAddress,omitempty"`
-	InvoiceContact               *Contact    `json:"invoiceContact,omitempty"`
-	StatementType                StringValue `json:"statementType,omitempty"`
-	DeliveryAddress              *Address    `json:"deliveryAddress,omitempty"`
-	DeliveryContact              *Contact    `json:"deliveryContact,omitempty"`
-	PriceClassID                 StringValue `json:"priceClassId,omitempty"`
-	OverrideNumberSeries         BoolValue   `json:"overrideNumberSeries,omitempty"`
-	ExcludeDebtCollection        BoolValue   `json:"excludeDebtCollection,omitempty"`
+	Number                       StringValue               `json:"number,omitempty"`
+	Name                         StringValue               `json:"name"`
+	Status                       StringValue               `json:"status,omitempty"`
+	AccountReference             StringValue               `json:"accountReference,omitempty"`
+	NumberOfEmployees            IntValue                  `json:"numberOfEmployees,omitempty"`
+	ParentRecordNumber           StringValue               `json:"parentRecordNumber,omitempty"`
+	CurrencyID                   StringValue               `json:"currencyId,omitempty"`
+	CreditLimit                  IntValue                  `json:"creditLimit,omitempty"`
+	CreditDaysPastDue            IntValue                  `json:"creditDaysPastDue,omitempty"`
+	CustomerClassID              StringValue               `json:"customerClassId,omitempty"`
+	CreditTermsID                StringValue               `json:"creditTermsId,omitempty"`
+	PrintInvoices                BoolValue                 `json:"printInvoices,omitempty"`
+	AcceptAutoInvoices           BoolValue                 `json:"acceptAutoInvoices,omitempty"`
+	SendInvoicesByEmail          BoolValue                 `json:"sendInvoicesByEmail,omitempty"`
+	SendDunningLettersViaEmail   BoolValue                 `json:"sendDunningLettersViaEMail,omitempty"`
+	PrintDunningLetters          BoolValue                 `json:"printDunningLetters,omitempty"`
+	PrintStatements              BoolValue                 `json:"printStatements,omitempty"`
+	SendStatementsByEmail        BoolValue                 `json:"sendStatementsByEmail,omitempty"`
+	PrintMultiCurrencyStatements BoolValue                 `json:"printMultiCurrencyStatements,omitempty"`
+	InvoiceToDefaultLocation     BoolValue                 `json:"invoiceToDefaultLocation,omitempty"`
+	VatRegistrationID            StringValue               `json:"vatRegistrationId,omitempty"`
+	CorporateID                  StringValue               `json:"corporateId,omitempty"`
+	VatZoneID                    StringValue               `json:"vatZoneId,omitempty"`
+	GLN                          StringValue               `json:"gln,omitempty"`
+	Note                         StringValue               `json:"note,omitempty"`
+	MainAddress                  *RequestBodyNestedAddress `json:"mainAddress,omitempty"`
+	MainContact                  *RequestBodyNestedContact `json:"mainContact,omitempty"`
+	CreditVerification           StringValue               `json:"creditVerification,omitempty"`
+	InvoiceAddress               *RequestBodyNestedAddress `json:"invoiceAddress,omitempty"`
+	InvoiceContact               *RequestBodyNestedContact `json:"invoiceContact,omitempty"`
+	StatementType                StringValue               `json:"statementType,omitempty"`
+	DeliveryAddress              *RequestBodyNestedAddress `json:"deliveryAddress,omitempty"`
+	DeliveryContact              *RequestBodyNestedContact `json:"deliveryContact,omitempty"`
+	PriceClassID                 StringValue               `json:"priceClassId,omitempty"`
+	OverrideNumberSeries         BoolValue                 `json:"overrideNumberSeries,omitempty"`
+	ExcludeDebtCollection        BoolValue                 `json:"excludeDebtCollection,omitempty"`
 	//TODO: implement overrideWithClassValues? bool with no value wrapper...
 	//TODO: implement eInvoiceContract?
 	//TODO: implement defaultPaymentMethod?
@@ -119,7 +129,7 @@ func (r *GetCustomerV1Request) SetPathParams(params GetCustomerV1PathParams) {
 
 // Do performs the request and returns the response
 func (r *GetCustomerV1Request) Do() (GetCustomerV1Response, error) {
-	var customer Customer
+	var customer ResponseCustomer
 	resp, err := r.Client.Do((*Request)(r), &customer)
 	return GetCustomerV1Response{Response{resp}, customer}, err
 }
@@ -132,7 +142,7 @@ type GetCustomerV1PathParams struct {
 // GetCustomerV1Response represents the response of the GetCustomerV1Request and contains the resulting customer
 type GetCustomerV1Response struct {
 	Response
-	Customer Customer
+	Customer ResponseCustomer
 }
 
 // newPostCustomerV1Request creates a new PostCustomerV1Request

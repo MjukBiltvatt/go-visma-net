@@ -1,17 +1,11 @@
 package vismanet
 
-import "encoding/json"
-
+// Subaccount is a subaccount as represented in responses from Visma.net
 type Subaccount struct {
-	SubaccountID         IntValue    `json:"subaccountId"`
-	SubaccountNumber     StringValue `json:"subaccountNumber"`
-	Description          StringValue `json:"description,omitempty"`
-	LastModifiedDateTime Time        `json:"lastModifiedDateTime,omitempty"`
-	Active               BoolValue   `json:"active"`
-	Segments             []Segment   `json:"segments"`
-}
-
-// MarshalJSON wraps the Subaccount in a Value struct and marshals it into a JSON byte slice
-func (v *Subaccount) MarshalJSON() ([]byte, error) {
-	return json.Marshal(Value{*v})
+	SubaccountID         int       `json:"subaccountId"`
+	SubaccountNumber     string    `json:"subaccountNumber"`
+	Description          string    `json:"description"`
+	LastModifiedDateTime Time      `json:"lastModifiedDateTime"`
+	Active               bool      `json:"active"`
+	Segments             []Segment `json:"segments"`
 }

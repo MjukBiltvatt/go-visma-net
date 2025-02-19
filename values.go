@@ -10,13 +10,8 @@ type Value struct {
 	Value interface{} `json:"value"`
 }
 
-// Time is a wrapper for the time.Time type that when marshaled to JSON will be wrapped
+// Time is a wrapper for the time.Time type that parses the time in the formats used by Visma.net
 type Time time.Time
-
-// MarshalJSON wraps the Time in a Value struct and marshals it into a JSON byte slice
-func (v Time) MarshalJSON() ([]byte, error) {
-	return json.Marshal(Value{Time(v)})
-}
 
 func (t *Time) UnmarshalJSON(data []byte) error {
 	//Unmarshal the data into a string
@@ -33,6 +28,33 @@ func (t *Time) UnmarshalJSON(data []byte) error {
 		return err
 	}
 	*t = Time(pt)
+
+	return nil
+}
+
+// TimeValue is a wrapper for the time.Time type that when marshaled to JSON will be wrapped in a Value struct
+type TimeValue time.Time
+
+// MarshalJSON wraps the Time in a Value struct and marshals it into a JSON byte slice
+func (v TimeValue) MarshalJSON() ([]byte, error) {
+	return json.Marshal(Value{time.Time(v)})
+}
+
+func (t *TimeValue) UnmarshalJSON(data []byte) error {
+	//Unmarshal the data into a string
+	var value string
+	if err := json.Unmarshal(data, &value); err != nil {
+		return err
+	} else if value == "" {
+		return nil
+	}
+
+	//Parse the time
+	pt, err := parseTime(value)
+	if err != nil {
+		return err
+	}
+	*t = TimeValue(pt)
 
 	return nil
 }
