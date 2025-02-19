@@ -1,7 +1,6 @@
 package vismanet
 
 import (
-	"fmt"
 	"time"
 )
 
@@ -21,8 +20,6 @@ func parseTime(s string) (time.Time, error) {
 		t, err = time.Parse(format, s)
 		if err == nil {
 			return t, nil
-		} else {
-			fmt.Printf("format %v does not match %v\n", format, s)
 		}
 	}
 
