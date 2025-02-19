@@ -55,6 +55,51 @@ type CustomerGLAccounts struct {
 	PrepaymentSubaccount     Subaccount `json:"prepaymentSubaccount"`
 }
 
+type CustomerRequestBody struct {
+	Number                       StringValue   `json:"number,omitempty"`
+	Name                         StringValue   `json:"name"`
+	Status                       StringValue   `json:"status,omitempty"`
+	AccountReference             StringValue   `json:"accountReference,omitempty"`
+	NumberOfEmployees            IntValue      `json:"numberOfEmployees,omitempty"`
+	ParentRecordNumber           StringValue   `json:"parentRecordNumber,omitempty"`
+	CurrencyID                   StringValue   `json:"currencyId,omitempty"`
+	CreditLimit                  IntValue      `json:"creditLimit,omitempty"`
+	CreditDaysPastDue            IntValue      `json:"creditDaysPastDue,omitempty"`
+	CustomerClassID              StringValue   `json:"customerClassId,omitempty"`
+	CreditTermsID                StringValue   `json:"creditTermsId,omitempty"`
+	PrintInvoices                BoolValue     `json:"printInvoices,omitempty"`
+	AcceptAutoInvoices           BoolValue     `json:"acceptAutoInvoices,omitempty"`
+	SendInvoicesByEmail          BoolValue     `json:"sendInvoicesByEmail,omitempty"`
+	SendDunningLettersViaEmail   BoolValue     `json:"sendDunningLettersViaEMail,omitempty"`
+	PrintDunningLetters          BoolValue     `json:"printDunningLetters,omitempty"`
+	PrintStatements              BoolValue     `json:"printStatements,omitempty"`
+	SendStatementsByEmail        BoolValue     `json:"sendStatementsByEmail,omitempty"`
+	PrintMultiCurrencyStatements BoolValue     `json:"printMultiCurrencyStatements,omitempty"`
+	InvoiceToDefaultLocation     BoolValue     `json:"invoiceToDefaultLocation,omitempty"`
+	VatRegistrationID            StringValue   `json:"vatRegistrationId,omitempty"`
+	CorporateID                  StringValue   `json:"corporateId,omitempty"`
+	VatZoneID                    StringValue   `json:"vatZoneId,omitempty"`
+	GLN                          StringValue   `json:"gln,omitempty"`
+	Note                         StringValue   `json:"note,omitempty"`
+	MainAddress                  *AddressValue `json:"mainAddress,omitempty"`
+	MainContact                  *ContactValue `json:"mainContact,omitempty"`
+	CreditVerification           StringValue   `json:"creditVerification,omitempty"`
+	InvoiceAddress               *AddressValue `json:"invoiceAddress,omitempty"`
+	InvoiceContact               *ContactValue `json:"invoiceContact,omitempty"`
+	StatementType                StringValue   `json:"statementType,omitempty"`
+	DeliveryAddress              *AddressValue `json:"deliveryAddress,omitempty"`
+	DeliveryContact              *ContactValue `json:"deliveryContact,omitempty"`
+	PriceClassID                 StringValue   `json:"priceClassId,omitempty"`
+	OverrideNumberSeries         BoolValue     `json:"overrideNumberSeries,omitempty"`
+	ExcludeDebtCollection        BoolValue     `json:"excludeDebtCollection,omitempty"`
+	//TODO: implement overrideWithClassValues? bool with no value wrapper...
+	//TODO: implement eInvoiceContract?
+	//TODO: implement defaultPaymentMethod?
+	//TODO: implement glAccounts?
+	//TODO: implement directDebitLines?
+	//TODO: implement attributeLines?
+}
+
 // newGetCustomerV1Request creates a new GetCustomerV1Request
 func newGetCustomerV1Request(c *Client) GetCustomerV1Request {
 	return GetCustomerV1Request{
@@ -88,4 +133,32 @@ type GetCustomerV1PathParams struct {
 type GetCustomerV1Response struct {
 	Response
 	Customer Customer
+}
+
+// newPostCustomerV1Request creates a new PostCustomerV1Request
+func newPostCustomerV1Request(c *Client) PostCustomerV1Request {
+	return PostCustomerV1Request{
+		Client: c,
+		Method: "POST",
+		Path:   "controller/api/v1/customer",
+	}
+}
+
+// PostCustomerV1Request represents a request to get a customer
+type PostCustomerV1Request Request
+
+// SetBody sets the body of the request
+func (r *PostCustomerV1Request) SetBody(body CustomerRequestBody) {
+	r.Body = JSONRequestBody{body}
+}
+
+// Do performs the request and returns the response
+func (r *PostCustomerV1Request) Do() (PostCustomerV1Response, error) {
+	resp, err := r.Client.Do((*Request)(r), nil)
+	return PostCustomerV1Response{Response{resp}}, err
+}
+
+// PostCustomerV1Response represents the response of the PostCustomerV1Request
+type PostCustomerV1Response struct {
+	Response
 }
