@@ -76,7 +76,7 @@ func (c *Client) Do(req *Request, body interface{}) (*http.Response, error) {
 	if resp.StatusCode < 200 || resp.StatusCode > 299 {
 		//Decode error response
 		var errResp ErrorResponse
-		if err := json.NewDecoder(resp.Body).Decode(&err); err != nil {
+		if err := json.NewDecoder(resp.Body).Decode(&errResp); err != nil {
 			return resp, fmt.Errorf("failed to decode error response: %v", err)
 		}
 		return resp, errResp
