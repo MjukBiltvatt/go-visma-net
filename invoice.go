@@ -324,27 +324,27 @@ func (c *RequestInvoiceContact) MarshalJSON() ([]byte, error) {
 // ========================== GET ==========================
 // =========================================================
 
-// newGetInvoiceV1Request creates a new GetInvoiceV1Request
-func newGetInvoiceV1Request(c *Client) GetInvoiceV1Request {
-	return GetInvoiceV1Request{
+// newGetCustomerInvoiceV1Request creates a new GetCustomerInvoiceV1Request
+func newGetCustomerInvoiceV1Request(c *Client) GetCustomerInvoiceV1Request {
+	return GetCustomerInvoiceV1Request{
 		Client: c,
 		Method: "GET",
 		Path:   "controller/api/v1/customerinvoice/{{.invoice_number}}",
 	}
 }
 
-// GetInvoiceV1Request represents a request to get invoices
-type GetInvoiceV1Request Request
+// GetCustomerInvoiceV1Request represents a request to get invoices
+type GetCustomerInvoiceV1Request Request
 
 // SetPathParams sets the path parameters of the request
-func (r *GetInvoiceV1Request) SetPathParams(params GetInvoiceV1PathParams) {
+func (r *GetCustomerInvoiceV1Request) SetPathParams(params GetCustomerInvoiceV1PathParams) {
 	r.pathParams = params
 }
 
 // Do performs the request and returns the response
-func (r *GetInvoiceV1Request) Do() (GetInvoiceV1Response, error) {
+func (r *GetCustomerInvoiceV1Request) Do() (GetCustomerInvoiceV1Response, error) {
 	if r.pathParams == nil {
-		r.SetPathParams(GetInvoiceV1PathParams{})
+		r.SetPathParams(GetCustomerInvoiceV1PathParams{})
 	}
 	var invoices []ResponseInvoice
 	var invoice ResponseInvoice
@@ -352,16 +352,16 @@ func (r *GetInvoiceV1Request) Do() (GetInvoiceV1Response, error) {
 	if len(invoices) == 0 && invoice.ReferenceNumber != "" {
 		invoices = append(invoices, invoice)
 	}
-	return GetInvoiceV1Response{Response{resp}, invoices}, err
+	return GetCustomerInvoiceV1Response{Response{resp}, invoices}, err
 }
 
-// GetInvoiceV1PathParams represents the path parameters of the GetInvoiceV1Request
-type GetInvoiceV1PathParams struct {
+// GetCustomerInvoiceV1PathParams represents the path parameters of the GetCustomerInvoiceV1Request
+type GetCustomerInvoiceV1PathParams struct {
 	InvoiceNumber string `schema:"invoice_number"`
 }
 
-// GetInvoiceV1Response represents the response of the GetInvoiceV1Request and contains the resulting invoices
-type GetInvoiceV1Response struct {
+// GetCustomerInvoiceV1Response represents the response of the GetCustomerInvoiceV1Request and contains the resulting invoices
+type GetCustomerInvoiceV1Response struct {
 	Response
 	Invoices []ResponseInvoice
 }
@@ -370,30 +370,30 @@ type GetInvoiceV1Response struct {
 // ========================== POST =========================
 // =========================================================
 
-// newPostInvoiceV2Request creates a new PostInvoiceV2Request
-func newPostInvoiceV2Request(c *Client) PostInvoiceV2Request {
-	return PostInvoiceV2Request{
+// newPostCustomerInvoiceV2Request creates a new PostCustomerInvoiceV2Request
+func newPostCustomerInvoiceV2Request(c *Client) PostCustomerInvoiceV2Request {
+	return PostCustomerInvoiceV2Request{
 		Client: c,
 		Method: "POST",
 		Path:   "controller/api/v2/customerinvoice",
 	}
 }
 
-// PostInvoiceV2Request represents a request to create a new invoice
-type PostInvoiceV2Request Request
+// PostCustomerInvoiceV2Request represents a request to create a new invoice
+type PostCustomerInvoiceV2Request Request
 
 // SetBody sets the body of the request
-func (r *PostInvoiceV2Request) SetBody(body RequestInvoice) {
+func (r *PostCustomerInvoiceV2Request) SetBody(body RequestInvoice) {
 	r.Body = JSONRequestBody{body}
 }
 
 // Do performs the request and returns the response
-func (r *PostInvoiceV2Request) Do() (PostInvoiceV2Response, error) {
+func (r *PostCustomerInvoiceV2Request) Do() (PostCustomerInvoiceV2Response, error) {
 	resp, err := r.Client.Do((*Request)(r), nil)
-	return PostInvoiceV2Response{Response{resp}}, err
+	return PostCustomerInvoiceV2Response{Response{resp}}, err
 }
 
-// PostInvoiceV2Response represents the response of the PostInvoiceV2Request
-type PostInvoiceV2Response struct {
+// PostCustomerInvoiceV2Response represents the response of the PostCustomerInvoiceV2Request
+type PostCustomerInvoiceV2Response struct {
 	Response
 }

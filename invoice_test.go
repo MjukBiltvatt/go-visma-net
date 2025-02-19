@@ -5,10 +5,10 @@ import (
 	"testing"
 )
 
-func TestGetInvoiceV1(t *testing.T) {
-	invoiceNumber := os.Getenv("TEST_INVOICE_NUMBER")
-	req := testClient.NewGetInvoiceV1Request()
-	req.SetPathParams(GetInvoiceV1PathParams{invoiceNumber})
+func TestGetCustomerInvoiceV1(t *testing.T) {
+	invoiceNumber := os.Getenv("TEST_CUSTOMER_INVOICE_NUMBER")
+	req := testClient.NewGetCustomerInvoiceV1Request()
+	req.SetPathParams(GetCustomerInvoiceV1PathParams{invoiceNumber})
 	resp, err := req.Do()
 	debugDumpResponse(testClient, resp)
 	if err != nil {
@@ -18,8 +18,8 @@ func TestGetInvoiceV1(t *testing.T) {
 	}
 }
 
-func TestPostInvoiceV2(t *testing.T) {
-	req := testClient.NewPostInvoiceV2Request()
+func TestPostCustomerInvoiceV2(t *testing.T) {
+	req := testClient.NewPostCustomerInvoiceV2Request()
 	req.SetBody(RequestInvoice{
 		CurrencyID:     "SEK",
 		CustomerNumber: StringValue(os.Getenv("TEST_CUSTOMER_CD")),

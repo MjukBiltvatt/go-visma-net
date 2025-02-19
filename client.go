@@ -130,12 +130,12 @@ func (c *Client) NewPostCustomerV1Request() PostCustomerV1Request {
 	return newPostCustomerV1Request(c)
 }
 
-// NewGetInvoiceV1Request creates a new GetInvoiceV1Request
-func (c *Client) NewGetInvoiceV1Request() GetInvoiceV1Request {
-	return newGetInvoiceV1Request(c)
+// NewGetCustomerInvoiceV1Request creates a new GetCustomerInvoiceV1Request
+func (c *Client) NewGetCustomerInvoiceV1Request() GetCustomerInvoiceV1Request {
+	return newGetCustomerInvoiceV1Request(c)
 }
 
-// NewPostInvoiceV2Request creates a new PostInvoiceV2Request
-func (c *Client) NewPostInvoiceV2Request() PostInvoiceV2Request {
-	return newPostInvoiceV2Request(c)
+// NewPostCustomerInvoiceV2Request creates a new PostCustomerInvoiceV2Request
+func (c *Client) NewPostCustomerInvoiceV2Request() PostCustomerInvoiceV2Request {
+	return newPostCustomerInvoiceV2Request(c)
 }
