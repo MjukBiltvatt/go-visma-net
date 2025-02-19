@@ -76,14 +76,14 @@ func (c *Client) Do(req *Request, body interface{}) (*http.Response, error) {
 	if resp.StatusCode < 200 || resp.StatusCode > 299 {
 		//Decode error response
 		var errResp ErrorResponse
-		if err := json.NewDecoder(resp.Body).Decode(&errResp); err != nil {
+		if err := json.NewDecoder(resp.Body).Decode(&errResp); err != nil && err != io.EOF {
 			return resp, fmt.Errorf("failed to decode error response: %v", err)
 		}
 		return resp, errResp
 	}
 
 	//Decode response body
-	if err := json.NewDecoder(resp.Body).Decode(body); err != nil {
+	if err := json.NewDecoder(resp.Body).Decode(body); err != nil && err != io.EOF {
 		return resp, fmt.Errorf("failed to decode response body: %v", err)
 	}
 
