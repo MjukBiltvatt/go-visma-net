@@ -1,10 +1,10 @@
 package vismanet
 
 type Subaccount struct {
-	SubaccountID         int       `json:"subaccountId"`
-	SubaccountNumber     string    `json:"subaccountNumber"`
-	Description          string    `json:"description"`
-	LastModifiedDateTime Time      `json:"lastModifiedDateTime"`
-	Active               bool      `json:"active"`
-	Segments             []Segment `json:"segments"`
+	SubaccountID         IntValue    `json:"subaccountId"`
+	SubaccountNumber     StringValue `json:"subaccountNumber"`
+	Description          StringValue `json:"description,omitempty"`
+	LastModifiedDateTime TimeValue   `json:"lastModifiedDateTime,omitempty"`
+	Active               BoolValue   `json:"active"`
+	Segments             []Segment   `json:"segments"`
 }

@@ -1,7 +1,7 @@
 package vismanet
 
 type Account struct {
-	Type        string `json:"type"`
-	Number      string `json:"number"`
-	Description string `json:"description"`
+	Type        StringValue `json:"type"`
+	Number      StringValue `json:"number"`
+	Description StringValue `json:"description"`
 }
