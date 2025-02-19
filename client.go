@@ -1,6 +1,7 @@
 package vismanet
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -38,7 +39,7 @@ type Client struct {
 }
 
 // Do the API request and decode the response body into the provided interface
-func (c *Client) Do(req *Request, body interface{}) (*http.Response, error) {
+func (c *Client) Do(req *Request, body ...interface{}) (*http.Response, error) {
 	//Get complete URL
 	url, err := req.URL()
 	if err != nil {
@@ -92,12 +93,31 @@ func (c *Client) Do(req *Request, body interface{}) (*http.Response, error) {
 		return resp, errResp
 	}
 
-	//Decode response body
-	if err := json.NewDecoder(resp.Body).Decode(body); err != nil && err != io.EOF {
-		return resp, fmt.Errorf("failed to decode response body: %v", err)
+	// Read the response body into a buffer
+	var buffer bytes.Buffer
+	if _, err := io.Copy(&buffer, resp.Body); err != nil {
+		return resp, fmt.Errorf("failed to read response body: %v", err)
 	}
 
-	return resp, nil
+	// Attempt to decode the response body into any of the provided interfaces
+	var decodeErr error
+	for _, b := range body {
+		// Create a new buffer for each decode attempt
+		var buf bytes.Buffer
+		if _, err := buf.Write(buffer.Bytes()); err != nil {
+			return resp, fmt.Errorf("failed to write response body to buffer: %v", err)
+		}
+
+		// Attempt to decode the response body into the provided interface
+		if err := json.NewDecoder(&buf).Decode(b); err != nil && err != io.EOF {
+			decodeErr = fmt.Errorf("failed to decode response body: %v", err)
+		} else {
+			return resp, nil
+		}
+	}
+
+	// Failed to decode the response body into any of the provided interfaces, return error
+	return resp, decodeErr
 }
 
 func (c *Client) NewGetCustomerV1Request() GetCustomerV1Request {
