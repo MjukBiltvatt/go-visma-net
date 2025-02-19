@@ -120,10 +120,17 @@ func (c *Client) Do(req *Request, body ...interface{}) (*http.Response, error) {
 	return resp, decodeErr
 }
 
+// NewGetCustomerV1Request creates a new GetCustomerV1Request
 func (c *Client) NewGetCustomerV1Request() GetCustomerV1Request {
 	return newGetCustomerV1Request(c)
 }
 
+// NewPostCustomerV1Request creates a new PostCustomerV1Request
 func (c *Client) NewPostCustomerV1Request() PostCustomerV1Request {
 	return newPostCustomerV1Request(c)
+}
+
+// NewGetInvoiceV1Request creates a new GetInvoiceV1Request
+func (c *Client) NewGetInvoiceV1Request() GetInvoiceV1Request {
+	return newGetInvoiceV1Request(c)
 }

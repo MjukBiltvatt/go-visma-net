@@ -65,7 +65,8 @@ type ResponseCustomer struct {
 	} `json:"paymentMethods"`
 }
 
-type CustomerRequestBody struct {
+// RequestCustomer is a customer as represented in a request to the Visma.net API
+type RequestCustomer struct {
 	Number                       StringValue           `json:"number,omitempty"`
 	Name                         StringValue           `json:"name"`
 	Status                       StringValue           `json:"status,omitempty"`
@@ -110,6 +111,10 @@ type CustomerRequestBody struct {
 	//TODO: implement attributeLines?
 }
 
+// =========================================================
+// ========================== GET ==========================
+// =========================================================
+
 // newGetCustomerV1Request creates a new GetCustomerV1Request
 func newGetCustomerV1Request(c *Client) GetCustomerV1Request {
 	return GetCustomerV1Request{
@@ -145,6 +150,10 @@ type GetCustomerV1Response struct {
 	Customer ResponseCustomer
 }
 
+// =========================================================
+// ========================== POST =========================
+// =========================================================
+
 // newPostCustomerV1Request creates a new PostCustomerV1Request
 func newPostCustomerV1Request(c *Client) PostCustomerV1Request {
 	return PostCustomerV1Request{
@@ -158,7 +167,7 @@ func newPostCustomerV1Request(c *Client) PostCustomerV1Request {
 type PostCustomerV1Request Request
 
 // SetBody sets the body of the request
-func (r *PostCustomerV1Request) SetBody(body CustomerRequestBody) {
+func (r *PostCustomerV1Request) SetBody(body RequestCustomer) {
 	r.Body = JSONRequestBody{body}
 }
 
