@@ -181,3 +181,45 @@ func (r *PostCustomerV1Request) Do() (PostCustomerV1Response, error) {
 type PostCustomerV1Response struct {
 	Response
 }
+
+// =========================================================
+// ========================== PUT ==========================
+// =========================================================
+
+// newPutCustomerV1Request creates a new PutCustomerV1Request
+func newPutCustomerV1Request(c *Client) PutCustomerV1Request {
+	return PutCustomerV1Request{
+		Client: c,
+		Method: "PUT",
+		Path:   "controller/api/v1/customer/{{.customer_cd}}",
+	}
+}
+
+// PutCustomerV1Request represents a request to create a new customer
+type PutCustomerV1Request Request
+
+// SetPathParams sets the path parameters of the request
+func (r *PutCustomerV1Request) SetPathParams(params PutCustomerV1PathParams) {
+	r.pathParams = params
+}
+
+// SetBody sets the body of the request
+func (r *PutCustomerV1Request) SetBody(body RequestCustomer) {
+	r.Body = JSONRequestBody{body}
+}
+
+// Do performs the request and returns the response
+func (r *PutCustomerV1Request) Do() (PutCustomerV1Response, error) {
+	resp, err := r.Client.Do((*Request)(r), nil)
+	return PutCustomerV1Response{Response{resp}}, err
+}
+
+// PutCustomerV1PathParams represents the path parameters of the PutCustomerV1Request
+type PutCustomerV1PathParams struct {
+	CustomerCD string `schema:"customer_cd"`
+}
+
+// PutCustomerV1Response represents the response of the PutCustomerV1Request
+type PutCustomerV1Response struct {
+	Response
+}

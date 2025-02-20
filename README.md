@@ -43,7 +43,9 @@ Get a customer with a specific customer number.
 
 ```go
 req := client.NewGetCustomerV1Request()
-req.SetPathParams(GetCustomerV1PathParams{customerCD})
+req.SetPathParams(GetCustomerV1PathParams{
+	customerCD: "customer_number",
+})
 resp, err := req.Do()
 if err != nil {
 	if resp.StatusCode() == http.StatusNotFound {
@@ -77,6 +79,25 @@ if err != nil {
 fmt.Println("Customer created successfully:", resp.ResourceID())
 ```
 
+### PUT `/controller/api/v1/customer/{customerCd}`
+
+Update an existing customer with the specified customer number.
+
+```go
+req := testClient.NewPutCustomerV1Request()
+req.SetPathParams(PutCustomerV1PathParams{
+	customerCD: "customer_number",
+})
+req.SetBody(RequestCustomer{
+	Name: "John Doe",
+})
+resp, err := req.Do()
+if err != nil {
+	fmt.Println("Error updating customer:", err)
+}
+fmt.Println("Customer updated successfully:", resp.ResourceID())
+```
+
 ## CustomerInvoice
 
 ### GET `/controller/api/v1/customerinvoice/{invoiceNumber}`
@@ -85,7 +106,9 @@ Get a customer invoice with a specific invoice number.
 
 ```go
 req := testClient.NewGetCustomerInvoiceV1Request()
-req.SetPathParams(GetCustomerInvoiceV1PathParams{invoiceNumber})
+req.SetPathParams(GetCustomerInvoiceV1PathParams{
+	invoiceNumber: "invoice_number",
+})
 resp, err := req.Do()
 if err != nil {
 	if resp.StatusCode() == http.StatusNotFound {

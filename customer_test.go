@@ -1,6 +1,8 @@
 package vismanet
 
 import (
+	"fmt"
+	"math/rand/v2"
 	"os"
 	"testing"
 )
@@ -28,6 +30,22 @@ func TestPostCustomerV1(t *testing.T) {
 			PostalCode:   "12345",
 			CountryID:    "US",
 		},
+	})
+	resp, err := req.Do()
+	debugDumpResponse(testClient, resp)
+	if err != nil {
+		t.Error(err)
+	} else if resp.ResourceID() == "" {
+		t.Errorf("Expected non-empty resource ID, got %s", resp.ResourceID())
+	}
+}
+
+func TestPutCustomerV1(t *testing.T) {
+	customerCD := os.Getenv("TEST_CUSTOMER_CD")
+	req := testClient.NewPutCustomerV1Request()
+	req.SetPathParams(PutCustomerV1PathParams{customerCD})
+	req.SetBody(RequestCustomer{
+		Name: StringValue(fmt.Sprintf("Testbolaget %d AB", rand.IntN(99999999))),
 	})
 	resp, err := req.Do()
 	debugDumpResponse(testClient, resp)

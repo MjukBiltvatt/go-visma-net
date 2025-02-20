@@ -117,6 +117,11 @@ func (c *Client) NewPostCustomerV1Request() PostCustomerV1Request {
 	return newPostCustomerV1Request(c)
 }
 
+// NewPutCustomerV1Request creates a new PutCustomerV1Request
+func (c *Client) NewPutCustomerV1Request() PutCustomerV1Request {
+	return newPutCustomerV1Request(c)
+}
+
 // NewGetCustomerInvoiceV1Request creates a new GetCustomerInvoiceV1Request
 func (c *Client) NewGetCustomerInvoiceV1Request() GetCustomerInvoiceV1Request {
 	return newGetCustomerInvoiceV1Request(c)
