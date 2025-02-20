@@ -40,32 +40,19 @@ type Client struct {
 
 // Do the API request and decode the response body into the provided interface
 func (c *Client) Do(req *Request, body ...interface{}) (*http.Response, error) {
-	//Get complete URL
-	url, err := req.URL()
+	//Build http request
+	r, err := req.build()
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to build http request: %v", err)
 	}
 
-	//Get request body reader
-	var reqBody io.Reader
-	if req.Body != nil {
-		reqBody, err = req.Body.Reader()
+	//Dump request if debugging is enabled
+	if c.Debug {
+		dump, err := httputil.DumpRequest(r, true)
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("failed to dump request: %v", err)
 		}
-	}
-
-	//Create http request
-	r, err := http.NewRequest(req.Method, url, reqBody)
-	if err != nil {
-		return nil, err
-	}
-
-	//Add headers
-	r.Header.Add("Accept", "application/json")
-	r.Header.Add("User-Agent", c.UserAgent)
-	if req.Body != nil {
-		r.Header.Add("Content-Type", req.Body.ContentType())
+		fmt.Println(string(dump))
 	}
 
 	//Execute http request

@@ -3,7 +3,10 @@ package vismanet
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"io"
+	"mime/multipart"
+	"net/http"
 	"net/url"
 	"reflect"
 	"text/template"
@@ -11,8 +14,7 @@ import (
 
 // RequestBody represents a request body
 type RequestBody interface {
-	ContentType() string
-	Reader() (io.Reader, error)
+	build() (io.Reader, string, error)
 }
 
 // Request represents an API request
@@ -50,8 +52,8 @@ func (r *Request) pathParamsMap() map[string]string {
 	return params
 }
 
-// URL returns the complete URL of the request
-func (r *Request) URL() (string, error) {
+// url returns the complete URL of the request
+func (r *Request) url() (string, error) {
 	//Parse path template
 	tmpl, err := template.New("path").Option("missingkey=error").Parse(r.Path)
 	if err != nil {
@@ -68,25 +70,91 @@ func (r *Request) URL() (string, error) {
 	return r.Client.BaseURL.String() + buf.String(), nil
 }
 
+// build the http request
+func (r *Request) build() (*http.Request, error) {
+	// Get complete URL
+	url, err := r.url()
+	if err != nil {
+		return nil, err
+	}
+
+	// Get request body reader
+	var reqBody io.Reader
+	var contentType string
+	if r.Body != nil {
+		reqBody, contentType, err = r.Body.build()
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	// Create http request
+	req, err := http.NewRequest(r.Method, url, reqBody)
+	if err != nil {
+		return nil, err
+	}
+
+	// Add headers
+	req.Header.Add("User-Agent", r.Client.UserAgent)
+	req.Header.Add("Content-Type", contentType)
+	req.Header.Add("Accept", "application/json")
+
+	return req, nil
+}
+
 // JSONRequestBody represents a request body that will be marshaled to JSON
 type JSONRequestBody struct {
 	// The value to be marshaled to JSON and sent as the request body
 	Payload interface{}
 }
 
-// ContentType returns the content type of the request body
-func (r JSONRequestBody) ContentType() string {
-	return "application/json; charset=utf-8"
-}
-
-// Reader marshals the payload to JSON and returns a reader to be used as the request body
-func (r JSONRequestBody) Reader() (io.Reader, error) {
+// build marshals the payload to JSON and returns a reader to be used as the request body as well as the content type
+func (r JSONRequestBody) build() (io.Reader, string, error) {
+	contentType := "application/json; charset=utf-8"
 	buf := new(bytes.Buffer)
 	if r.Payload != nil {
 		err := json.NewEncoder(buf).Encode(r.Payload)
 		if err != nil {
-			return nil, err
+			return nil, contentType, err
 		}
 	}
-	return buf, nil
+	return buf, contentType, nil
+}
+
+type File struct {
+	Key     string // The key to use for the file in the multipart form data
+	Name    string // The name of the file
+	Content []byte // The content of the file
+}
+
+// FileUploadBody represents a multipart form data request body builder
+type FileUploadBody struct {
+	Files []File
+}
+
+// AddFile adds a file to the request body
+func (r *FileUploadBody) AddFile(file File) {
+	r.Files = append(r.Files, file)
+}
+
+// build marshals the payload to JSON and returns a reader to be used as the request body
+func (r FileUploadBody) build() (io.Reader, string, error) {
+	buf := new(bytes.Buffer)
+	w := multipart.NewWriter(buf)
+	defer w.Close()
+
+	for _, file := range r.Files {
+		// Create form file
+		part, err := w.CreateFormFile(file.Key, file.Name)
+		if err != nil {
+			return nil, w.FormDataContentType(), fmt.Errorf("failed to create form file: %v", err.Error())
+		}
+
+		// Write the file data to the form file
+		if _, err = part.Write(file.Content); err != nil {
+			return nil, w.FormDataContentType(), fmt.Errorf("failed to write to form file: %v", err.Error())
+		}
+	}
+
+	return buf, w.FormDataContentType(), nil
 }
