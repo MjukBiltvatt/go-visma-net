@@ -7,6 +7,7 @@ import (
 	"io"
 	"mime/multipart"
 	"net/http"
+	"net/textproto"
 	"net/url"
 	"reflect"
 	"text/template"
@@ -122,9 +123,10 @@ func (r JSONRequestBody) build() (io.Reader, string, error) {
 }
 
 type File struct {
-	Key     string // The key to use for the file in the multipart form data
-	Name    string // The name of the file
-	Content []byte // The content of the file
+	Key         string // The key to use for the file in the multipart form data
+	Name        string // The name of the file
+	Content     []byte // The content of the file
+	ContentType string // The content type of the file, default "application/octet-stream" if left empty
 }
 
 // FileUploadBody represents a multipart form data request body builder
@@ -144,15 +146,24 @@ func (r FileUploadBody) build() (io.Reader, string, error) {
 	defer w.Close()
 
 	for _, file := range r.Files {
-		// Create form file
-		part, err := w.CreateFormFile(file.Key, file.Name)
-		if err != nil {
-			return nil, w.FormDataContentType(), fmt.Errorf("failed to create form file: %v", err.Error())
+		// Create the form part header
+		h := make(textproto.MIMEHeader)
+		h.Set("Content-Disposition", fmt.Sprintf(`form-data; name="%s"; filename="%s"`, file.Key, file.Name))
+		if file.ContentType != "" {
+			h.Set("Content-Type", file.ContentType)
+		} else {
+			h.Set("Content-Type", "application/octet-stream")
 		}
 
-		// Write the file data to the form file
+		// Create the form part
+		part, err := w.CreatePart(h)
+		if err != nil {
+			return nil, w.FormDataContentType(), fmt.Errorf("failed to create form part: %v", err.Error())
+		}
+
+		// Write the file data to the form part
 		if _, err = part.Write(file.Content); err != nil {
-			return nil, w.FormDataContentType(), fmt.Errorf("failed to write to form file: %v", err.Error())
+			return nil, w.FormDataContentType(), fmt.Errorf("failed to write to form part: %v", err.Error())
 		}
 	}
 
