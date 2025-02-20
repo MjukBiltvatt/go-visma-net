@@ -126,3 +126,8 @@ func (c *Client) NewGetCustomerInvoiceV1Request() GetCustomerInvoiceV1Request {
 func (c *Client) NewPostCustomerInvoiceV2Request() PostCustomerInvoiceV2Request {
 	return newPostCustomerInvoiceV2Request(c)
 }
+
+// NewPostCustomerInvoiceAttachmentV1Request creates a new PostCustomerInvoiceAttachmentV1Request
+func (c *Client) NewPostCustomerInvoiceAttachmentV1Request() PostCustomerInvoiceAttachmentV1Request {
+	return newPostCustomerInvoiceAttachmentV1Request(c)
+}

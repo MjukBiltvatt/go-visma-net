@@ -376,6 +376,7 @@ func newPostCustomerInvoiceV2Request(c *Client) PostCustomerInvoiceV2Request {
 		Client: c,
 		Method: "POST",
 		Path:   "controller/api/v2/customerinvoice",
+		Body:   JSONRequestBody{},
 	}
 }
 
@@ -395,5 +396,44 @@ func (r *PostCustomerInvoiceV2Request) Do() (PostCustomerInvoiceV2Response, erro
 
 // PostCustomerInvoiceV2Response represents the response of the PostCustomerInvoiceV2Request
 type PostCustomerInvoiceV2Response struct {
+	Response
+}
+
+// newPostCustomerInvoiceAttachmentV1Request creates a new PostCustomerInvoiceAttachmentV1Request
+func newPostCustomerInvoiceAttachmentV1Request(c *Client) PostCustomerInvoiceAttachmentV1Request {
+	return PostCustomerInvoiceAttachmentV1Request{
+		Client: c,
+		Method: "POST",
+		Path:   "controller/api/v1/customerinvoice/{{.invoice_number}}/attachment",
+		Body:   FileUploadBody{},
+	}
+}
+
+// PostCustomerInvoiceAttachmentV1Request represents a request to create a new invoice
+type PostCustomerInvoiceAttachmentV1Request Request
+
+// SetBody sets the body of the request
+func (r *PostCustomerInvoiceAttachmentV1Request) SetBody(body FileUploadBody) {
+	r.Body = body
+}
+
+// SetPathParams sets the path parameters of the request
+func (r *PostCustomerInvoiceAttachmentV1Request) SetPathParams(params PostCustomerInvoiceAttachmentV1PathParams) {
+	r.pathParams = params
+}
+
+// Do performs the request and returns the response
+func (r *PostCustomerInvoiceAttachmentV1Request) Do() (PostCustomerInvoiceAttachmentV2Response, error) {
+	resp, err := r.Client.Do((*Request)(r), nil)
+	return PostCustomerInvoiceAttachmentV2Response{Response{resp}}, err
+}
+
+// PostCustomerInvoiceAttachmentV1PathParams represents the path parameters of the GetCustomerInvoiceV1Request
+type PostCustomerInvoiceAttachmentV1PathParams struct {
+	InvoiceNumber string `schema:"invoice_number"`
+}
+
+// PostCustomerInvoiceAttachmentV2Response represents the response of the PostCustomerInvoiceAttachmentV1Request
+type PostCustomerInvoiceAttachmentV2Response struct {
 	Response
 }

@@ -57,3 +57,25 @@ func TestPostCustomerInvoiceV2(t *testing.T) {
 		t.Errorf("Expected non-empty resource ID, got %s", resp.ResourceID())
 	}
 }
+
+func TestPostCustomerInvoiceAttachmentV1(t *testing.T) {
+	req := testClient.NewPostCustomerInvoiceAttachmentV1Request()
+	req.SetPathParams(PostCustomerInvoiceAttachmentV1PathParams{
+		InvoiceNumber: os.Getenv("TEST_CUSTOMER_INVOICE_NUMBER"),
+	})
+	req.SetBody(FileUploadBody{
+		Files: []File{
+			{
+				Name:    "Test.txt",
+				Content: []byte("test"),
+			},
+		},
+	})
+	resp, err := req.Do()
+	debugDumpResponse(testClient, resp)
+	if err != nil {
+		t.Error(err)
+	} else if resp.ResourceID() == "" {
+		t.Errorf("Expected non-empty resource ID, got %s", resp.ResourceID())
+	}
+}
