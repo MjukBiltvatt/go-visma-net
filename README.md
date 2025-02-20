@@ -38,6 +38,9 @@ client := vismanet.NewClient(httpClient)
 ## Customer
 
 ### GET `/controller/api/v1/customer/{customerCd}`
+
+Get a customer with a specific customer number.
+
 ```go
 req := client.NewGetCustomerV1Request()
 req.SetPathParams(GetCustomerV1PathParams{customerCD})
@@ -53,6 +56,9 @@ fmt.Println("Customer retrieved successfully:", resp.Customer.Number)
 ```
 
 ### POST `/controller/api/v1/customer`
+
+Create a new customer.
+
 ```go
 req := client.NewPostCustomerV1Request()
 req.SetBody(RequestCustomer{
@@ -75,6 +81,8 @@ fmt.Println("Customer created successfully:", resp.ResourceID())
 
 ### GET `/controller/api/v1/customerinvoice/{invoiceNumber}`
 
+Get a customer invoice with a specific invoice number.
+
 ```go
 req := testClient.NewGetCustomerInvoiceV1Request()
 req.SetPathParams(GetCustomerInvoiceV1PathParams{invoiceNumber})
@@ -90,6 +98,8 @@ fmt.Println("Invoice retrieved successfully:", resp.Customer.Number)
 ```
 
 ### POST `/controller/api/v1/customerinvoice/{invoiceNumber}/attachment`
+
+Upload a file as an attachment to a customer invoice.
 
 ```go
 req := testClient.NewPostCustomerInvoiceAttachmentV1Request()
@@ -114,6 +124,8 @@ fmt.Println("Attachment created successfully:", resp.ResourceID())
 ## CustomerInvoiceV2
 
 ### POST `/controller/api/v2/customerinvoice`
+
+Create a new customer invoice.
 
 ```go
 req := testClient.NewPostCustomerInvoiceV2Request()
