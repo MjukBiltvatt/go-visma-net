@@ -24,6 +24,7 @@ func NewClient(httpClient *http.Client) *Client {
 			Path:   "/API/",
 		},
 		Debug:     false,
+		DebugBody: true,
 		UserAgent: UserAgent,
 		Charset:   "utf-8",
 	}
@@ -34,6 +35,7 @@ type Client struct {
 	Http      *http.Client
 	BaseURL   url.URL
 	Debug     bool
+	DebugBody bool
 	UserAgent string
 	Charset   string
 }
@@ -48,7 +50,7 @@ func (c *Client) Do(req *Request, body ...interface{}) (*http.Response, error) {
 
 	//Dump request if debugging is enabled
 	if c.Debug {
-		dump, err := httputil.DumpRequest(r, true)
+		dump, err := httputil.DumpRequest(r, c.DebugBody)
 		if err != nil {
 			return nil, fmt.Errorf("failed to dump request: %v", err)
 		}
@@ -63,7 +65,7 @@ func (c *Client) Do(req *Request, body ...interface{}) (*http.Response, error) {
 
 	//Dump response if debugging is enabled
 	if c.Debug {
-		dump, err := httputil.DumpResponse(resp, true)
+		dump, err := httputil.DumpResponse(resp, c.DebugBody)
 		if err != nil {
 			return resp, fmt.Errorf("failed to dump response: %v", err)
 		}
