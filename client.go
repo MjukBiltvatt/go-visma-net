@@ -32,12 +32,12 @@ func NewClient(httpClient *http.Client) *Client {
 
 // Client is a Visma Net client for making Visma Net API requests.
 type Client struct {
-	Http      *http.Client
-	BaseURL   url.URL
-	Debug     bool
-	DebugBody bool
-	UserAgent string
-	Charset   string
+	Http      *http.Client // Http is the http client used to make requests
+	BaseURL   url.URL      // BaseURL is the base URL of the Visma Net API
+	Debug     bool         // Debug enables debugging output of requests and responses
+	DebugBody bool         // DebugBody enables debugging output of request and response bodies
+	UserAgent string       // UserAgent is the string used in the User-Agent header in requests
+	Charset   string       // Charset is the character set used in the Content-Type header in requests
 }
 
 // Do the API request and decode the response body into the provided interface
