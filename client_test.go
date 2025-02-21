@@ -24,5 +24,6 @@ func TestMain(m *testing.M) {
 	httpClient := oauthConf.Client(context.Background())
 	testClient = NewClient(httpClient)
 	testClient.Debug = os.Getenv("DEBUG") == "true"
+	testClient.DebugBody = os.Getenv("DEBUG_BODY") != "false"
 	m.Run()
 }
