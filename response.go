@@ -30,6 +30,16 @@ func (r *Response) LocationHeader() string {
 	return r.Http.Header.Get("Location")
 }
 
+// IPPRequestIDHeader returns the value of the 'Ipp-Request-Id' header
+func (r *Response) IPPRequestIDHeader() string {
+	return r.Http.Header.Get("Ipp-Request-Id")
+}
+
+// RequestContextHeader returns the value of the 'Request-Context' header
+func (r *Response) RequestContextHeader() string {
+	return r.Http.Header.Get("Request-Context")
+}
+
 // ResourceID returns the resource id from the 'Location' header
 func (r *Response) ResourceID() string {
 	return path.Base(r.LocationHeader())

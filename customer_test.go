@@ -17,6 +17,10 @@ func TestGetCustomerV1(t *testing.T) {
 		t.Error(err)
 	} else if resp.Customer.Number != customerCD {
 		t.Errorf("Expected customer number %s, got %s", customerCD, resp.Customer.Number)
+	} else if resp.IPPRequestIDHeader() == "" {
+		t.Error("Expected non-empty Ipp-Request-Id header")
+	} else if resp.RequestContextHeader() == "" {
+		t.Error("Expected non-empty Request-Context header")
 	}
 }
 
