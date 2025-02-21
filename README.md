@@ -187,3 +187,12 @@ if err != nil {
 }
 fmt.Println("Invoice created successfully:", resp.ResourceID())
 ```
+
+# Testing
+
+Set up your testing environment by copying the contents of `.env.template` to a `.env` file. After that you can use [godotenv](https://github.com/joho/godotenv) to set the environment variables required for testing.
+
+Run all tests:
+```
+$ godotenv go test
+```
