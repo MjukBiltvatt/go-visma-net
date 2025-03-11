@@ -45,14 +45,14 @@ func (c *Client) Do(req *Request, body ...interface{}) (*http.Response, error) {
 	//Build http request
 	r, err := req.build()
 	if err != nil {
-		return nil, fmt.Errorf("failed to build http request: %v", err)
+		return nil, fmt.Errorf("failed to build http request: %w", err)
 	}
 
 	//Dump request if debugging is enabled
 	if c.Debug {
 		dump, err := httputil.DumpRequest(r, c.DebugBody)
 		if err != nil {
-			return nil, fmt.Errorf("failed to dump request: %v", err)
+			return nil, fmt.Errorf("failed to dump request: %w", err)
 		}
 		fmt.Println(string(dump))
 	}
@@ -60,14 +60,14 @@ func (c *Client) Do(req *Request, body ...interface{}) (*http.Response, error) {
 	//Execute http request
 	resp, err := c.Http.Do(r)
 	if err != nil {
-		return resp, err
+		return resp, fmt.Errorf("http request failed: %w", err)
 	}
 
 	//Dump response if debugging is enabled
 	if c.Debug {
 		dump, err := httputil.DumpResponse(resp, c.DebugBody)
 		if err != nil {
-			return resp, fmt.Errorf("failed to dump response: %v", err)
+			return resp, fmt.Errorf("failed to dump response: %w", err)
 		}
 		fmt.Println(string(dump))
 	}
@@ -75,17 +75,18 @@ func (c *Client) Do(req *Request, body ...interface{}) (*http.Response, error) {
 	//Check response status code
 	if resp.StatusCode < 200 || resp.StatusCode > 299 {
 		//Decode error response
+		//TODO: implement exception response
 		var errResp ErrorResponse
 		if err := json.NewDecoder(resp.Body).Decode(&errResp); err != nil && err != io.EOF {
-			return resp, fmt.Errorf("failed to decode error response: %v", err)
+			return resp, fmt.Errorf("failed to decode error response: %w", err)
 		}
-		return resp, errResp
+		return resp, fmt.Errorf("http status %s indicates error: %v", resp.Status, errResp)
 	}
 
 	// Read the response body into a buffer
 	var buffer bytes.Buffer
 	if _, err := io.Copy(&buffer, resp.Body); err != nil {
-		return resp, fmt.Errorf("failed to read response body: %v", err)
+		return resp, fmt.Errorf("failed to read response body: %w", err)
 	}
 
 	// Attempt to decode the response body into any of the provided interfaces
@@ -94,12 +95,12 @@ func (c *Client) Do(req *Request, body ...interface{}) (*http.Response, error) {
 		// Create a new buffer for each decode attempt
 		var buf bytes.Buffer
 		if _, err := buf.Write(buffer.Bytes()); err != nil {
-			return resp, fmt.Errorf("failed to write response body to buffer: %v", err)
+			return resp, fmt.Errorf("failed to write response body to buffer: %w", err)
 		}
 
 		// Attempt to decode the response body into the provided interface
 		if err := json.NewDecoder(&buf).Decode(b); err != nil && err != io.EOF {
-			decodeErr = fmt.Errorf("failed to decode response body: %v", err)
+			decodeErr = fmt.Errorf("failed to decode response body: %w", err)
 		} else {
 			return resp, nil
 		}
