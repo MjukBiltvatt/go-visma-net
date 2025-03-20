@@ -42,64 +42,77 @@ type Client struct {
 
 // Do the API request and decode the response body into the provided interface
 func (c *Client) Do(req *Request, body ...interface{}) (*http.Response, error) {
-	//Build http request
+	// Build http request
 	r, err := req.build()
 	if err != nil {
-		return nil, fmt.Errorf("failed to build http request: %v", err)
+		return nil, fmt.Errorf("failed to build http request: %w", err)
 	}
 
-	//Dump request if debugging is enabled
+	// Dump request if debugging is enabled
 	if c.Debug {
 		dump, err := httputil.DumpRequest(r, c.DebugBody)
 		if err != nil {
-			return nil, fmt.Errorf("failed to dump request: %v", err)
+			return nil, fmt.Errorf("failed to dump request: %w", err)
 		}
 		fmt.Println(string(dump))
 	}
 
-	//Execute http request
+	// Execute http request
 	resp, err := c.Http.Do(r)
 	if err != nil {
-		return resp, err
+		return resp, fmt.Errorf("http request failed: %w", err)
 	}
 
-	//Dump response if debugging is enabled
+	// Dump response if debugging is enabled
 	if c.Debug {
 		dump, err := httputil.DumpResponse(resp, c.DebugBody)
 		if err != nil {
-			return resp, fmt.Errorf("failed to dump response: %v", err)
+			return resp, fmt.Errorf("failed to dump response: %w", err)
 		}
 		fmt.Println(string(dump))
 	}
 
-	//Check response status code
-	if resp.StatusCode < 200 || resp.StatusCode > 299 {
-		//Decode error response
-		var errResp ErrorResponse
-		if err := json.NewDecoder(resp.Body).Decode(&errResp); err != nil && err != io.EOF {
-			return resp, fmt.Errorf("failed to decode error response: %v", err)
-		}
-		return resp, errResp
+	// Read the response body into a buffer
+	var buf bytes.Buffer
+	if _, err := io.Copy(&buf, resp.Body); err != nil {
+		return resp, fmt.Errorf("failed to read response body: %w", err)
 	}
 
-	// Read the response body into a buffer
-	var buffer bytes.Buffer
-	if _, err := io.Copy(&buffer, resp.Body); err != nil {
-		return resp, fmt.Errorf("failed to read response body: %v", err)
+	// Check response status code
+	if resp.StatusCode < 200 || resp.StatusCode > 299 {
+		// Decode error response
+		var errResp ErrorResponse
+		if err := json.Unmarshal(buf.Bytes(), &errResp); err != nil && err != io.EOF {
+			return resp, fmt.Errorf("failed to decode error response: %w", err)
+		} else if errResp.Message != "" {
+			// Return error response as error
+			return resp, errResp
+		}
+
+		// Decode exception response
+		var excResp ExceptionResponse
+		if err := json.Unmarshal(buf.Bytes(), &excResp); err != nil && err != io.EOF {
+			return resp, fmt.Errorf("failed to decode exception response: %w", err)
+		} else if excResp.Message != "" {
+			// Return exception response as error
+			return resp, excResp
+		}
+
+		// Return error with http status if no error or exception response could be decoded
+		return resp, fmt.Errorf("http status %s indicates error, but the body could not be parsed: '%s'", resp.Status, buf.String())
 	}
 
 	// Attempt to decode the response body into any of the provided interfaces
 	var decodeErr error
 	for _, b := range body {
-		// Create a new buffer for each decode attempt
-		var buf bytes.Buffer
-		if _, err := buf.Write(buffer.Bytes()); err != nil {
-			return resp, fmt.Errorf("failed to write response body to buffer: %v", err)
+		// Skip nil interfaces
+		if b == nil {
+			continue
 		}
 
-		// Attempt to decode the response body into the provided interface
-		if err := json.NewDecoder(&buf).Decode(b); err != nil && err != io.EOF {
-			decodeErr = fmt.Errorf("failed to decode response body: %v", err)
+		// Unmarshal response body into provided interface
+		if err := json.Unmarshal(buf.Bytes(), b); err != nil && err != io.EOF {
+			decodeErr = fmt.Errorf("failed to decode response body: %w", err)
 		} else {
 			return resp, nil
 		}
