@@ -64,12 +64,26 @@ func (r *Response) ResourceID() string {
 
 // ErrorResponse represents a Visma Net API error response
 type ErrorResponse struct {
-	// HTTP response that caused the error
 	Response *http.Response
 	Message  string `json:"Message"`
 }
 
 // Error returns the error message
 func (r ErrorResponse) Error() string {
+	return r.Message
+}
+
+// ExceptionResponse represents a Visma Net API exception response
+type ExceptionResponse struct {
+	Response  *http.Response
+	Type      string `json:"ExceptionType"`
+	Message   string `json:"ExceptionMessage"`
+	FaultCode string `json:"ExceptionFaultCode"`
+	MessageID string `json:"ExceptionMessageID"`
+	Details   string `json:"ExceptionDetails"`
+}
+
+// Error returns the exception message
+func (r ExceptionResponse) Error() string {
 	return r.Message
 }
