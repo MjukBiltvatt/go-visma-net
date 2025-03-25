@@ -8,12 +8,15 @@ import (
 	"net/http"
 	"net/http/httputil"
 	"net/url"
+	"time"
 )
 
 // NewClient returns a new Visma Net client either using the specified http.Client, or if nil the default http.Client.
 func NewClient(httpClient *http.Client) *Client {
 	if httpClient == nil {
-		httpClient = http.DefaultClient
+		httpClient = &http.Client{
+			Timeout: 30 * time.Second,
+		}
 	}
 
 	return &Client{
