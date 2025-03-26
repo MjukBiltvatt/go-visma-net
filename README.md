@@ -120,6 +120,26 @@ if err != nil {
 fmt.Println("Invoice retrieved successfully:", resp.Customer.Number)
 ```
 
+### DELETE `/controller/api/v1/customerinvoice/{invoiceNumber}`
+
+Delete a customer invoice with a specific invoice number.
+
+```go
+req := testClient.NewGetCustomerInvoiceV1Request()
+req.SetPathParams(GetCustomerInvoiceV1PathParams{
+	invoiceNumber: "invoice_number",
+})
+resp, err := req.Do()
+if err != nil {
+	if resp.StatusCode() == http.StatusNotFound {
+		fmt.Println("Invoice not found")
+	} else {
+		fmt.Println("Error deleting invoice:", err)
+	}
+}
+fmt.Println("Invoice deleted successfully")
+```
+
 ### POST `/controller/api/v1/customerinvoice/{invoiceNumber}/attachment`
 
 Upload a file as an attachment to a customer invoice.
