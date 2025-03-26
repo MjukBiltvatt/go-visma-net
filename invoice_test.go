@@ -1,6 +1,7 @@
 package vismanet
 
 import (
+	"net/http"
 	"os"
 	"testing"
 )
@@ -55,6 +56,16 @@ func TestPostCustomerInvoiceV2(t *testing.T) {
 		t.Error(err)
 	} else if resp.ResourceID() == "" {
 		t.Errorf("Expected non-empty resource ID, got %s", resp.ResourceID())
+	}
+}
+
+func TestDeleteCustomerInvoiceV1(t *testing.T) {
+	req := testClient.NewDeleteCustomerInvoiceV1Request()
+	req.SetPathParams(DeleteCustomerInvoiceV1PathParams{"1"})
+	resp, err := req.Do()
+	debugDumpResponse(testClient, resp)
+	if err != nil && resp.StatusCode() != http.StatusNotFound {
+		t.Error(err)
 	}
 }
 
