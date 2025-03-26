@@ -437,3 +437,43 @@ type PostCustomerInvoiceAttachmentV1PathParams struct {
 type PostCustomerInvoiceAttachmentV2Response struct {
 	Response
 }
+
+// =========================================================
+// ========================= DELETE ========================
+// =========================================================
+
+// newDeleteCustomerInvoiceV1Request creates a new DeleteCustomerInvoiceV1Request
+func newDeleteCustomerInvoiceV1Request(c *Client) DeleteCustomerInvoiceV1Request {
+	return DeleteCustomerInvoiceV1Request{
+		Client: c,
+		Method: "DELETE",
+		Path:   "controller/api/v1/customerinvoice/{{.invoice_number}}",
+	}
+}
+
+// DeleteCustomerInvoiceV1Request represents a request to delete an invoice
+type DeleteCustomerInvoiceV1Request Request
+
+// SetPathParams sets the path parameters of the request
+func (r *DeleteCustomerInvoiceV1Request) SetPathParams(params DeleteCustomerInvoiceV1PathParams) {
+	r.pathParams = params
+}
+
+// Do performs the request and returns the response
+func (r *DeleteCustomerInvoiceV1Request) Do() (DeleteCustomerInvoiceV1Response, error) {
+	if r.pathParams == nil {
+		r.SetPathParams(DeleteCustomerInvoiceV1PathParams{})
+	}
+	resp, err := r.Client.Do((*Request)(r))
+	return DeleteCustomerInvoiceV1Response{Response{resp}}, err
+}
+
+// DeleteCustomerInvoiceV1PathParams represents the path parameters of the DeleteCustomerInvoiceV1Request
+type DeleteCustomerInvoiceV1PathParams struct {
+	InvoiceNumber string `schema:"invoice_number"`
+}
+
+// DeleteCustomerInvoiceV1Response represents the response of the DeleteCustomerInvoiceV1Request and contains the resulting invoices
+type DeleteCustomerInvoiceV1Response struct {
+	Response
+}
