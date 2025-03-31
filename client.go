@@ -125,6 +125,8 @@ func (c *Client) Do(req *Request, body ...interface{}) (*http.Response, error) {
 	return resp, decodeErr
 }
 
+// ========== Customer ==========
+
 // NewGetCustomerV1Request creates a new GetCustomerV1Request
 func (c *Client) NewGetCustomerV1Request() GetCustomerV1Request {
 	return newGetCustomerV1Request(c)
@@ -140,6 +142,8 @@ func (c *Client) NewPutCustomerV1Request() PutCustomerV1Request {
 	return newPutCustomerV1Request(c)
 }
 
+// ========== Customer Invoice ==========
+
 // NewGetCustomerInvoiceV1Request creates a new GetCustomerInvoiceV1Request
 func (c *Client) NewGetCustomerInvoiceV1Request() GetCustomerInvoiceV1Request {
 	return newGetCustomerInvoiceV1Request(c)
@@ -150,12 +154,21 @@ func (c *Client) NewPostCustomerInvoiceV2Request() PostCustomerInvoiceV2Request 
 	return newPostCustomerInvoiceV2Request(c)
 }
 
+// NewDeleteCustomerInvoiceV1Request creates a new DeleteCustomerInvoiceV1Request
+func (c *Client) NewDeleteCustomerInvoiceV1Request() DeleteCustomerInvoiceV1Request {
+	return newDeleteCustomerInvoiceV1Request(c)
+}
+
+// ========== Customer Invoice Attachment ==========
+
 // NewPostCustomerInvoiceAttachmentV1Request creates a new PostCustomerInvoiceAttachmentV1Request
 func (c *Client) NewPostCustomerInvoiceAttachmentV1Request() PostCustomerInvoiceAttachmentV1Request {
 	return newPostCustomerInvoiceAttachmentV1Request(c)
 }
 
-// NewDeleteCustomerInvoiceV1Request creates a new DeleteCustomerInvoiceV1Request
-func (c *Client) NewDeleteCustomerInvoiceV1Request() DeleteCustomerInvoiceV1Request {
-	return newDeleteCustomerInvoiceV1Request(c)
+// ========== Attachment ==========
+
+// NewPutAttachmentV1Request creates a new PutAttachmentV1Request
+func (c *Client) NewPutAttachmentV1Request() PutAttachmentV1Request {
+	return newPutAttachmentV1Request(c)
 }
