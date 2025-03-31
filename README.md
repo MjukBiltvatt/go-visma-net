@@ -35,6 +35,22 @@ httpClient := oauthConf.Client(context.Background())
 client := vismanet.NewClient(httpClient)
 ```
 
+## Attachment
+
+### PUT `/controller/api/v1/attachment/{attachmentId}`
+
+Update an existing attachment with the specified ID.
+
+```go
+req := testClient.NewPutAttachmentV1Request()
+req.SetPathParams(PutAttachmentV1PathParams{AttachmentID: "attachment_id"})
+req.SetBody(RequestAttachment{SendToAutoInvoice: true})
+if err != nil {
+	fmt.Println("Error updating attachment:", err)
+}
+fmt.Println("Attachment updated successfully:", resp.ResourceID())
+```
+
 ## Customer
 
 ### GET `/controller/api/v1/customer/{customerCd}`
