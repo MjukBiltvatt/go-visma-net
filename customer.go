@@ -69,42 +69,42 @@ type ResponseCustomer struct {
 
 // RequestCustomer is a customer as represented in a request to the Visma.net API
 type RequestCustomer struct {
-	Number                       StringValue                `json:"number,omitempty"`
+	Number                       *StringValue               `json:"number,omitempty"`
 	Name                         StringValue                `json:"name"`
-	Status                       StringValue                `json:"status,omitempty"`
-	AccountReference             StringValue                `json:"accountReference,omitempty"`
-	NumberOfEmployees            IntValue                   `json:"numberOfEmployees,omitempty"`
-	ParentRecordNumber           StringValue                `json:"parentRecordNumber,omitempty"`
-	CurrencyID                   StringValue                `json:"currencyId,omitempty"`
-	CreditLimit                  IntValue                   `json:"creditLimit,omitempty"`
-	CreditDaysPastDue            IntValue                   `json:"creditDaysPastDue,omitempty"`
-	CustomerClassID              StringValue                `json:"customerClassId,omitempty"`
-	CreditTermsID                StringValue                `json:"creditTermsId,omitempty"`
-	PrintInvoices                BoolValue                  `json:"printInvoices,omitempty"`
-	AcceptAutoInvoices           BoolValue                  `json:"acceptAutoInvoices,omitempty"`
-	SendInvoicesByEmail          BoolValue                  `json:"sendInvoicesByEmail,omitempty"`
-	SendDunningLettersViaEmail   BoolValue                  `json:"sendDunningLettersViaEMail,omitempty"`
-	PrintDunningLetters          BoolValue                  `json:"printDunningLetters,omitempty"`
-	PrintStatements              BoolValue                  `json:"printStatements,omitempty"`
-	SendStatementsByEmail        BoolValue                  `json:"sendStatementsByEmail,omitempty"`
-	PrintMultiCurrencyStatements BoolValue                  `json:"printMultiCurrencyStatements,omitempty"`
-	InvoiceToDefaultLocation     BoolValue                  `json:"invoiceToDefaultLocation,omitempty"`
-	VatRegistrationID            StringValue                `json:"vatRegistrationId,omitempty"`
-	CorporateID                  StringValue                `json:"corporateId,omitempty"`
-	VatZoneID                    StringValue                `json:"vatZoneId,omitempty"`
-	GLN                          StringValue                `json:"gln,omitempty"`
-	Note                         StringValue                `json:"note,omitempty"`
+	Status                       *StringValue               `json:"status,omitempty"`
+	AccountReference             *StringValue               `json:"accountReference,omitempty"`
+	NumberOfEmployees            *IntValue                  `json:"numberOfEmployees,omitempty"`
+	ParentRecordNumber           *StringValue               `json:"parentRecordNumber,omitempty"`
+	CurrencyID                   *StringValue               `json:"currencyId,omitempty"`
+	CreditLimit                  *IntValue                  `json:"creditLimit,omitempty"`
+	CreditDaysPastDue            *IntValue                  `json:"creditDaysPastDue,omitempty"`
+	CustomerClassID              *StringValue               `json:"customerClassId,omitempty"`
+	CreditTermsID                *StringValue               `json:"creditTermsId,omitempty"`
+	PrintInvoices                *BoolValue                 `json:"printInvoices,omitempty"`
+	AcceptAutoInvoices           *BoolValue                 `json:"acceptAutoInvoices,omitempty"`
+	SendInvoicesByEmail          *BoolValue                 `json:"sendInvoicesByEmail,omitempty"`
+	SendDunningLettersViaEmail   *BoolValue                 `json:"sendDunningLettersViaEMail,omitempty"`
+	PrintDunningLetters          *BoolValue                 `json:"printDunningLetters,omitempty"`
+	PrintStatements              *BoolValue                 `json:"printStatements,omitempty"`
+	SendStatementsByEmail        *BoolValue                 `json:"sendStatementsByEmail,omitempty"`
+	PrintMultiCurrencyStatements *BoolValue                 `json:"printMultiCurrencyStatements,omitempty"`
+	InvoiceToDefaultLocation     *BoolValue                 `json:"invoiceToDefaultLocation,omitempty"`
+	VatRegistrationID            *StringValue               `json:"vatRegistrationId,omitempty"`
+	CorporateID                  *StringValue               `json:"corporateId,omitempty"`
+	VatZoneID                    *StringValue               `json:"vatZoneId,omitempty"`
+	GLN                          *StringValue               `json:"gln,omitempty"`
+	Note                         *StringValue               `json:"note,omitempty"`
 	MainAddress                  *RequestNestedAddress      `json:"mainAddress,omitempty"`
 	MainContact                  *RequestNestedContact      `json:"mainContact,omitempty"`
-	CreditVerification           StringValue                `json:"creditVerification,omitempty"`
+	CreditVerification           *StringValue               `json:"creditVerification,omitempty"`
 	InvoiceAddress               *RequestNestedAddress      `json:"invoiceAddress,omitempty"`
 	InvoiceContact               *RequestNestedContact      `json:"invoiceContact,omitempty"`
-	StatementType                StringValue                `json:"statementType,omitempty"`
+	StatementType                *StringValue               `json:"statementType,omitempty"`
 	DeliveryAddress              *RequestNestedAddress      `json:"deliveryAddress,omitempty"`
 	DeliveryContact              *RequestNestedContact      `json:"deliveryContact,omitempty"`
-	PriceClassID                 StringValue                `json:"priceClassId,omitempty"`
-	OverrideNumberSeries         BoolValue                  `json:"overrideNumberSeries,omitempty"`
-	ExcludeDebtCollection        BoolValue                  `json:"excludeDebtCollection,omitempty"`
+	PriceClassID                 *StringValue               `json:"priceClassId,omitempty"`
+	OverrideNumberSeries         *BoolValue                 `json:"overrideNumberSeries,omitempty"`
+	ExcludeDebtCollection        *BoolValue                 `json:"excludeDebtCollection,omitempty"`
 	GLAccounts                   *RequestCustomerGLAccounts `json:"glAccounts,omitempty"`
 	//TODO: implement overrideWithClassValues? bool with no value wrapper...
 	//TODO: implement eInvoiceContract?
@@ -115,21 +115,21 @@ type RequestCustomer struct {
 
 // RequestCustomerGLAccounts is a customer's GL accounts as represented in a request to the Visma.net API
 type RequestCustomerGLAccounts struct {
-	CustomerLedgerAccount    StringValue      `json:"customerLedgerAccount,omitempty"`
-	CustomerLedgerSubaccount []RequestSegment `json:"customerLedgerSubaccount,omitempty"`
-	SalesAccount             StringValue      `json:"salesAccount,omitempty"`
-	SalesNonTaxableAccount   StringValue      `json:"salesNonTaxableAccount,omitempty"`
-	SalesEuAccount           StringValue      `json:"salesEuAccount,omitempty"`
-	SalesExportAccount       StringValue      `json:"salesExportAccount,omitempty"`
-	SalesSubaccount          []RequestSegment `json:"salesSubaccount,omitempty"`
-	DiscountAccount          StringValue      `json:"discountAccount,omitempty"`
-	DiscountSubaccount       []RequestSegment `json:"discountSubaccount,omitempty"`
-	FreightAccount           StringValue      `json:"freightAccount,omitempty"`
-	FreightSubaccount        []RequestSegment `json:"freightSubaccount,omitempty"`
-	CashDiscountAccount      StringValue      `json:"cashDiscountAccount,omitempty"`
-	CashDiscountSubaccount   []RequestSegment `json:"cashDiscountSubaccount,omitempty"`
-	PrepaymentAccount        StringValue      `json:"prepaymentAccount,omitempty"`
-	PrepaymentSubaccount     []RequestSegment `json:"prepaymentSubaccount,omitempty"`
+	CustomerLedgerAccount    *StringValue      `json:"customerLedgerAccount,omitempty"`
+	CustomerLedgerSubaccount *[]RequestSegment `json:"customerLedgerSubaccount,omitempty"`
+	SalesAccount             *StringValue      `json:"salesAccount,omitempty"`
+	SalesNonTaxableAccount   *StringValue      `json:"salesNonTaxableAccount,omitempty"`
+	SalesEuAccount           *StringValue      `json:"salesEuAccount,omitempty"`
+	SalesExportAccount       *StringValue      `json:"salesExportAccount,omitempty"`
+	SalesSubaccount          *[]RequestSegment `json:"salesSubaccount,omitempty"`
+	DiscountAccount          *StringValue      `json:"discountAccount,omitempty"`
+	DiscountSubaccount       *[]RequestSegment `json:"discountSubaccount,omitempty"`
+	FreightAccount           *StringValue      `json:"freightAccount,omitempty"`
+	FreightSubaccount        *[]RequestSegment `json:"freightSubaccount,omitempty"`
+	CashDiscountAccount      *StringValue      `json:"cashDiscountAccount,omitempty"`
+	CashDiscountSubaccount   *[]RequestSegment `json:"cashDiscountSubaccount,omitempty"`
+	PrepaymentAccount        *StringValue      `json:"prepaymentAccount,omitempty"`
+	PrepaymentSubaccount     *[]RequestSegment `json:"prepaymentSubaccount,omitempty"`
 }
 
 func (v *RequestCustomerGLAccounts) MarshalJSON() ([]byte, error) {

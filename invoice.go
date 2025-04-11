@@ -199,121 +199,121 @@ type ResponseInvoice struct {
 
 // RequestInvoice is an invoice as represented in requests to the Visma.net API
 type RequestInvoice struct {
-	PaymentMethodID                   StringValue                   `json:"paymentMethodId,omitempty"`
-	CreditTermsID                     StringValue                   `json:"creditTermsId,omitempty"`
-	CurrencyID                        StringValue                   `json:"currencyId,omitempty"`
-	CustomerRefNumber                 StringValue                   `json:"customerRefNumber,omitempty"`
-	CashDiscountDate                  *TimeValue                    `json:"cashDiscountDate,omitempty"`
-	DocumentDueDate                   *TimeValue                    `json:"documentDueDate,omitempty"`
-	ExternalReference                 StringValue                   `json:"externalReference,omitempty"`
-	CustomerProject                   StringValue                   `json:"customerProject,omitempty"`
-	ExchangeRate                      FloatValue                    `json:"exchangeRate,omitempty"`
-	DomesticServiceDeductibleDocument BoolValue                     `json:"domesticServiceDeductibleDocument,omitempty"`
-	RotRutDetails                     *RequestInvoiceRotRutDetails  `json:"rotRutDetails,omitempty"`
-	PaymentReference                  StringValue                   `json:"paymentReference,omitempty"`
-	Contact                           IntValue                      `json:"contact,omitempty"` //What even is this?
-	Project                           StringValue                   `json:"project,omitempty"`
-	TaxDetailLines                    []RequestInvoiceTaxDetailLine `json:"taxDetailLines,omitempty"`
-	InvoiceLines                      []RequestInvoiceLine          `json:"invoiceLines,omitempty"`
-	SendToAutoInvoice                 BoolValue                     `json:"sendToAutoInvoice,omitempty"`
-	CustomerVatZoneID                 StringValue                   `json:"customerVatZoneId,omitempty"`
-	BillingAddress                    *RequestNestedAddress         `json:"billingAddress,omitempty"`
-	InvoiceContact                    *RequestInvoiceContact        `json:"invoiceContact,omitempty"`
-	StartDate                         *TimeValue                    `json:"startDate,omitempty"`
-	EndDate                           *TimeValue                    `json:"endDate,omitempty"`
-	AccountingCostRef                 StringValue                   `json:"accountingCostRef,omitempty"`
-	OriginatorDocRef                  StringValue                   `json:"originatorDocRef,omitempty"`
-	ContractDocRef                    StringValue                   `json:"contractDocRef,omitempty"`
-	Revoked                           BoolValue                     `json:"revoked,omitempty"`
-	OverrideNumberSeries              BoolValue                     `json:"overrideNumberSeries,omitempty"`
-	DirectDebitMandateID              StringValue                   `json:"directDebitMandateId,omitempty"`
-	ExcludeDebtCollection             BoolValue                     `json:"excludeDebtCollection,omitempty"`
-	DebtCollectionCaseNumber          StringValue                   `json:"debtCollectionCaseNbr,omitempty"`
-	DebtCollectionCaseStatus          StringValue                   `json:"debtCollectionCaseStatus,omitempty"`
-	DebtCollectionCaseType            StringValue                   `json:"debtCollectionCaseType,omitempty"`
-	DebtCollectionCaseURL             StringValue                   `json:"debtCollectionCaseUrl,omitempty"`
-	ReferenceNumber                   StringValue                   `json:"referenceNumber,omitempty"`
-	CustomerNumber                    StringValue                   `json:"customerNumber"`
-	ChildCustomerNumber               StringValue                   `json:"childCustomerNumber,omitempty"`
-	ConsolidateInvoices               BoolValue                     `json:"consolidateInvoices,omitempty"`
-	DocumentDate                      *TimeValue                    `json:"documentDate,omitempty"`
-	OriginalDocumentDate              *TimeValue                    `json:"origDocumentDate,omitempty"`
-	Hold                              BoolValue                     `json:"hold,omitempty"`
-	PostPeriod                        StringValue                   `json:"postPeriod,omitempty"`
-	FinancialPeriod                   StringValue                   `json:"financialPeriod,omitempty"`
-	InvoiceText                       StringValue                   `json:"invoiceText,omitempty"`
-	LocationID                        StringValue                   `json:"locationId,omitempty"`
-	SalesPersonID                     IntValue                      `json:"salesPersonId,omitempty"`
-	Note                              StringValue                   `json:"note,omitempty"`
-	BranchNumber                      StringValue                   `json:"branchNumber,omitempty"`
-	CashAccount                       StringValue                   `json:"cashAccount,omitempty"`
-	DontPrint                         BoolValue                     `json:"dontPrint,omitempty"`
-	DontEmail                         BoolValue                     `json:"dontEmail,omitempty"`
+	PaymentMethodID                   *StringValue                   `json:"paymentMethodId,omitempty"`
+	CreditTermsID                     *StringValue                   `json:"creditTermsId,omitempty"`
+	CurrencyID                        *StringValue                   `json:"currencyId,omitempty"`
+	CustomerRefNumber                 *StringValue                   `json:"customerRefNumber,omitempty"`
+	CashDiscountDate                  *TimeValue                     `json:"cashDiscountDate,omitempty"`
+	DocumentDueDate                   *TimeValue                     `json:"documentDueDate,omitempty"`
+	ExternalReference                 *StringValue                   `json:"externalReference,omitempty"`
+	CustomerProject                   *StringValue                   `json:"customerProject,omitempty"`
+	ExchangeRate                      *FloatValue                    `json:"exchangeRate,omitempty"`
+	DomesticServiceDeductibleDocument *BoolValue                     `json:"domesticServiceDeductibleDocument,omitempty"`
+	RotRutDetails                     *RequestInvoiceRotRutDetails   `json:"rotRutDetails,omitempty"`
+	PaymentReference                  *StringValue                   `json:"paymentReference,omitempty"`
+	Contact                           *IntValue                      `json:"contact,omitempty"` //What even is this?
+	Project                           *StringValue                   `json:"project,omitempty"`
+	TaxDetailLines                    *[]RequestInvoiceTaxDetailLine `json:"taxDetailLines,omitempty"`
+	InvoiceLines                      *[]RequestInvoiceLine          `json:"invoiceLines,omitempty"`
+	SendToAutoInvoice                 *BoolValue                     `json:"sendToAutoInvoice,omitempty"`
+	CustomerVatZoneID                 *StringValue                   `json:"customerVatZoneId,omitempty"`
+	BillingAddress                    *RequestNestedAddress          `json:"billingAddress,omitempty"`
+	InvoiceContact                    *RequestInvoiceContact         `json:"invoiceContact,omitempty"`
+	StartDate                         *TimeValue                     `json:"startDate,omitempty"`
+	EndDate                           *TimeValue                     `json:"endDate,omitempty"`
+	AccountingCostRef                 *StringValue                   `json:"accountingCostRef,omitempty"`
+	OriginatorDocRef                  *StringValue                   `json:"originatorDocRef,omitempty"`
+	ContractDocRef                    *StringValue                   `json:"contractDocRef,omitempty"`
+	Revoked                           *BoolValue                     `json:"revoked,omitempty"`
+	OverrideNumberSeries              *BoolValue                     `json:"overrideNumberSeries,omitempty"`
+	DirectDebitMandateID              *StringValue                   `json:"directDebitMandateId,omitempty"`
+	ExcludeDebtCollection             *BoolValue                     `json:"excludeDebtCollection,omitempty"`
+	DebtCollectionCaseNumber          *StringValue                   `json:"debtCollectionCaseNbr,omitempty"`
+	DebtCollectionCaseStatus          *StringValue                   `json:"debtCollectionCaseStatus,omitempty"`
+	DebtCollectionCaseType            *StringValue                   `json:"debtCollectionCaseType,omitempty"`
+	DebtCollectionCaseURL             *StringValue                   `json:"debtCollectionCaseUrl,omitempty"`
+	ReferenceNumber                   *StringValue                   `json:"referenceNumber,omitempty"`
+	CustomerNumber                    *StringValue                   `json:"customerNumber,omitempty"`
+	ChildCustomerNumber               *StringValue                   `json:"childCustomerNumber,omitempty"`
+	ConsolidateInvoices               *BoolValue                     `json:"consolidateInvoices,omitempty"`
+	DocumentDate                      *TimeValue                     `json:"documentDate,omitempty"`
+	OriginalDocumentDate              *TimeValue                     `json:"origDocumentDate,omitempty"`
+	Hold                              *BoolValue                     `json:"hold,omitempty"`
+	PostPeriod                        *StringValue                   `json:"postPeriod,omitempty"`
+	FinancialPeriod                   *StringValue                   `json:"financialPeriod,omitempty"`
+	InvoiceText                       *StringValue                   `json:"invoiceText,omitempty"`
+	LocationID                        *StringValue                   `json:"locationId,omitempty"`
+	SalesPersonID                     *IntValue                      `json:"salesPersonId,omitempty"`
+	Note                              *StringValue                   `json:"note,omitempty"`
+	BranchNumber                      *StringValue                   `json:"branchNumber,omitempty"`
+	CashAccount                       *StringValue                   `json:"cashAccount,omitempty"`
+	DontPrint                         *BoolValue                     `json:"dontPrint,omitempty"`
+	DontEmail                         *BoolValue                     `json:"dontEmail,omitempty"`
 }
 
 // RequestInvoiceLine is an invoice line as represented in requests to the Visma.net API
 type RequestInvoiceLine struct {
-	Operation                 string           `json:"operation,omitempty"`
-	DiscountCode              StringValue      `json:"discountCode,omitempty"`
-	DomesticServiceDeductible BoolValue        `json:"domesticServiceDeductible,omitempty"`
-	ItemType                  StringValue      `json:"itemType,omitempty"`
-	TypeOfWork                StringValue      `json:"typeOfWork,omitempty"`
-	TaskID                    StringValue      `json:"taskId,omitempty"`
-	StartDate                 *TimeValue       `json:"startDate,omitempty"`
-	EndDate                   *TimeValue       `json:"endDate,omitempty"`
-	InventoryNumber           StringValue      `json:"inventoryNumber,omitempty"`
-	LineNumber                IntValue         `json:"lineNumber,omitempty"`
-	Description               StringValue      `json:"description,omitempty"`
-	Quantity                  FloatValue       `json:"quantity,omitempty"`
-	UnitPriceInCurrency       FloatValue       `json:"unitPriceInCurrency,omitempty"`
-	ManualAmountInCurrency    FloatValue       `json:"manualAmountInCurrency,omitempty"`
-	AccountNumber             StringValue      `json:"accountNumber,omitempty"`
-	VatCodeID                 StringValue      `json:"vatCodeId,omitempty"`
-	UOM                       StringValue      `json:"uom,omitempty"`
-	DiscountPercent           FloatValue       `json:"discountPercent,omitempty"`
-	DiscountAmountInCurrency  FloatValue       `json:"discountAmountInCurrency,omitempty"`
-	ManualDiscount            BoolValue        `json:"manualDiscount,omitempty"`
-	Subaccount                []RequestSegment `json:"subaccount,omitempty"`
-	SalesPerson               StringValue      `json:"salesPerson,omitempty"`
-	DeferralSchedule          IntValue         `json:"deferralSchedule,omitempty"`
-	DeferralCode              StringValue      `json:"deferralCode,omitempty"`
-	TermStartDate             *TimeValue       `json:"termStartDate,omitempty"`
-	TermEndDate               *TimeValue       `json:"termEndDate,omitempty"`
-	Note                      StringValue      `json:"note,omitempty"`
-	BranchNumber              StringValue      `json:"branchNumber,omitempty"`
+	Operation                 string            `json:"operation,omitempty"`
+	DiscountCode              *StringValue      `json:"discountCode,omitempty"`
+	DomesticServiceDeductible *BoolValue        `json:"domesticServiceDeductible,omitempty"`
+	ItemType                  *StringValue      `json:"itemType,omitempty"`
+	TypeOfWork                *StringValue      `json:"typeOfWork,omitempty"`
+	TaskID                    *StringValue      `json:"taskId,omitempty"`
+	StartDate                 *TimeValue        `json:"startDate,omitempty"`
+	EndDate                   *TimeValue        `json:"endDate,omitempty"`
+	InventoryNumber           *StringValue      `json:"inventoryNumber,omitempty"`
+	LineNumber                *IntValue         `json:"lineNumber,omitempty"`
+	Description               *StringValue      `json:"description,omitempty"`
+	Quantity                  *FloatValue       `json:"quantity,omitempty"`
+	UnitPriceInCurrency       *FloatValue       `json:"unitPriceInCurrency,omitempty"`
+	ManualAmountInCurrency    *FloatValue       `json:"manualAmountInCurrency,omitempty"`
+	AccountNumber             *StringValue      `json:"accountNumber,omitempty"`
+	VatCodeID                 *StringValue      `json:"vatCodeId,omitempty"`
+	UOM                       *StringValue      `json:"uom,omitempty"`
+	DiscountPercent           *FloatValue       `json:"discountPercent,omitempty"`
+	DiscountAmountInCurrency  *FloatValue       `json:"discountAmountInCurrency,omitempty"`
+	ManualDiscount            *BoolValue        `json:"manualDiscount,omitempty"`
+	Subaccount                *[]RequestSegment `json:"subaccount,omitempty"`
+	SalesPerson               *StringValue      `json:"salesPerson,omitempty"`
+	DeferralSchedule          *IntValue         `json:"deferralSchedule,omitempty"`
+	DeferralCode              *StringValue      `json:"deferralCode,omitempty"`
+	TermStartDate             *TimeValue        `json:"termStartDate,omitempty"`
+	TermEndDate               *TimeValue        `json:"termEndDate,omitempty"`
+	Note                      *StringValue      `json:"note,omitempty"`
+	BranchNumber              *StringValue      `json:"branchNumber,omitempty"`
 }
 
 type RequestInvoiceRotRutDetails struct {
-	DistributedAutomatically BoolValue                                `json:"distributedAutomaticaly,omitempty"` //TODO: double check this field name is correct, it is spelled wrong in the API docs
-	Type                     StringValue                              `json:"type,omitempty"`
-	Apartment                StringValue                              `json:"apartment,omitempty"` //TODO: double check this field name is correct, it is spelled wrong in the API docs
-	Estate                   StringValue                              `json:"estate,omitempty"`
-	OrganizationNumber       StringValue                              `json:"organizationNbr,omitempty"`
+	DistributedAutomatically *BoolValue                               `json:"distributedAutomaticaly,omitempty"` //TODO: double check this field name is correct, it is spelled wrong in the API docs
+	Type                     *StringValue                             `json:"type,omitempty"`
+	Apartment                *StringValue                             `json:"apartment,omitempty"` //TODO: double check this field name is correct, it is spelled wrong in the API docs
+	Estate                   *StringValue                             `json:"estate,omitempty"`
+	OrganizationNumber       *StringValue                             `json:"organizationNbr,omitempty"`
 	Distribution             *RequestInvoiceRotRutDetailsDistribution `json:"distribution,omitempty"`
 }
 
 type RequestInvoiceRotRutDetailsDistribution struct {
-	Operation  string      `json:"operation,omitempty"`
-	LineNumber IntValue    `json:"lineNbr,omitempty"`
-	PersonalID StringValue `json:"personalId,omitempty"`
-	Amount     FloatValue  `json:"amount,omitempty"`
-	Extra      BoolValue   `json:"extra,omitempty"`
+	Operation  string       `json:"operation,omitempty"`
+	LineNumber *IntValue    `json:"lineNbr,omitempty"`
+	PersonalID *StringValue `json:"personalId,omitempty"`
+	Amount     *FloatValue  `json:"amount,omitempty"`
+	Extra      *BoolValue   `json:"extra,omitempty"`
 }
 
 // RequestInvoiceTaxDetailLine is a tax detail line as represented in requests to the Visma.net API
 type RequestInvoiceTaxDetailLine struct {
-	TaxID         StringValue `json:"taxId,omitempty"`
-	TaxableAmount FloatValue  `json:"taxableAmount,omitempty"`
-	VatAmount     FloatValue  `json:"vatAmount,omitempty"`
+	TaxID         *StringValue `json:"taxId,omitempty"`
+	TaxableAmount *FloatValue  `json:"taxableAmount,omitempty"`
+	VatAmount     *FloatValue  `json:"vatAmount,omitempty"`
 }
 
 // RequestInvoiceContact is an invoice contact nested as represented in requests to the Visma.net API
 type RequestInvoiceContact struct {
-	OverrideContact BoolValue   `json:"overrideContact,omitempty"`
-	Name            StringValue `json:"name,omitempty"`
-	Attention       StringValue `json:"attention,omitempty"`
-	Email           StringValue `json:"email,omitempty"`
-	Phone1          StringValue `json:"phone1,omitempty"`
+	OverrideContact *BoolValue   `json:"overrideContact,omitempty"`
+	Name            *StringValue `json:"name,omitempty"`
+	Attention       *StringValue `json:"attention,omitempty"`
+	Email           *StringValue `json:"email,omitempty"`
+	Phone1          *StringValue `json:"phone1,omitempty"`
 }
 
 func (c *RequestInvoiceContact) MarshalJSON() ([]byte, error) {

@@ -22,18 +22,18 @@ func TestGetCustomerInvoiceV1(t *testing.T) {
 func TestPostCustomerInvoiceV2(t *testing.T) {
 	req := testClient.NewPostCustomerInvoiceV2Request()
 	req.SetBody(RequestInvoice{
-		CurrencyID:     "SEK",
-		CustomerNumber: StringValue(os.Getenv("TEST_CUSTOMER_CD")),
-		InvoiceLines: []RequestInvoiceLine{
+		CurrencyID:     NewStringValue("SEK"),
+		CustomerNumber: NewStringValue(os.Getenv("TEST_CUSTOMER_CD")),
+		InvoiceLines: &[]RequestInvoiceLine{
 			{
 				Operation:           "Insert",
-				ItemType:            "Service",
-				BranchNumber:        "1",
-				Description:         "Test",
-				Quantity:            1,
-				UnitPriceInCurrency: 100,
-				AccountNumber:       "3015",
-				Subaccount: []RequestSegment{
+				ItemType:            NewStringValue("Service"),
+				BranchNumber:        NewStringValue("1"),
+				Description:         NewStringValue("Test"),
+				Quantity:            NewFloatValue(1),
+				UnitPriceInCurrency: NewFloatValue(100),
+				AccountNumber:       NewStringValue("3015"),
+				Subaccount: &[]RequestSegment{
 					{
 						SegmentID:    1,
 						SegmentValue: "00",

@@ -29,10 +29,10 @@ func TestPostCustomerV1(t *testing.T) {
 	req.SetBody(RequestCustomer{
 		Name: "Test",
 		MainAddress: &RequestNestedAddress{
-			AddressLine1: "123 Test St",
-			City:         "Testville",
-			PostalCode:   "12345",
-			CountryID:    "US",
+			AddressLine1: NewStringValue("123 Test St"),
+			City:         NewStringValue("Testville"),
+			PostalCode:   NewStringValue("12345"),
+			CountryID:    NewStringValue("US"),
 		},
 	})
 	resp, err := req.Do()
