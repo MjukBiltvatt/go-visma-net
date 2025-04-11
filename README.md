@@ -82,10 +82,10 @@ req := client.NewPostCustomerV1Request()
 req.SetBody(RequestCustomer{
 	Name: "Test",
 	MainAddress: &RequestNestedAddress{
-		AddressLine1: "Testgatan 1",
-		City:         "Testdalen",
-		PostalCode:   "12345",
-		CountryID:    "SE",
+		AddressLine1: NewStringValue("Testgatan 1"),
+		City:         NewStringValue("Testdalen"),
+		PostalCode:   NewStringValue("12345"),
+		CountryID:    NewStringValue("SE"),
 	},
 })
 resp, err := req.Do()
@@ -189,18 +189,18 @@ Create a new customer invoice.
 ```go
 req := testClient.NewPostCustomerInvoiceV2Request()
 req.SetBody(RequestInvoice{
-	CurrencyID:     "SEK",
-	CustomerNumber: StringValue(os.Getenv("TEST_CUSTOMER_CD")),
-	InvoiceLines: []RequestInvoiceLine{
+	CurrencyID:     NewStringValue("SEK"),
+	CustomerNumber: NewStringValue(os.Getenv("TEST_CUSTOMER_CD")),
+	InvoiceLines: 	&[]RequestInvoiceLine{
 		{
-			Operation:           "Insert",
-			ItemType:            "Service",
-			BranchNumber:        "1",
-			Description:         "Test",
-			Quantity:            1,
-			UnitPriceInCurrency: 100,
-			AccountNumber:       "3015",
-			Subaccount: []RequestSegment{
+			Operation:           	"Insert",
+			ItemType:            	NewStringValue("Service"),
+			BranchNumber:        	NewStringValue("1"),
+			Description:         	NewStringValue("Test"),
+			Quantity:            	NewFloatValue(1),
+			UnitPriceInCurrency: 	NewFloatValue(100),
+			AccountNumber:       	NewStringValue("3015"),
+			Subaccount: 					&[]RequestSegment{
 				{
 					SegmentID:    1,
 					SegmentValue: "00",
