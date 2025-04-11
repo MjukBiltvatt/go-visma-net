@@ -59,6 +59,13 @@ func (t *TimeValue) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
+// NewStringValue creates a new StringValue and returns a pointer to it
+func NewStringValue(value string) *StringValue {
+	v := new(StringValue)
+	*v = StringValue(value)
+	return v
+}
+
 // StringValue is a wrapper for the string type and
 // when marshaled to JSON will be wrapped in a Value struct
 type StringValue string
@@ -66,6 +73,13 @@ type StringValue string
 // MarshalJSON marshals the StringValue into a JSON byte slice
 func (v StringValue) MarshalJSON() ([]byte, error) {
 	return json.Marshal(Value{string(v)})
+}
+
+// NewBoolValue creates a new BoolValue and returns a pointer to it
+func NewBoolValue(value bool) *BoolValue {
+	v := new(BoolValue)
+	*v = BoolValue(value)
+	return v
 }
 
 // BoolValue is a wrapper for the bool type and
@@ -77,6 +91,13 @@ func (v BoolValue) MarshalJSON() ([]byte, error) {
 	return json.Marshal(Value{bool(v)})
 }
 
+// NewIntValue creates a new IntValue and returns a pointer to it
+func NewIntValue(value int) *IntValue {
+	v := new(IntValue)
+	*v = IntValue(value)
+	return v
+}
+
 // IntValue is a wrapper for the int type and
 // when marshaled to JSON will be wrapped in a Value struct
 type IntValue int
@@ -84,6 +105,13 @@ type IntValue int
 // MarshalJSON marshals the IntValue into a JSON byte slice
 func (v IntValue) MarshalJSON() ([]byte, error) {
 	return json.Marshal(Value{int(v)})
+}
+
+// NewFloatValue creates a new FloatValue and returns a pointer to it
+func NewFloatValue(value float64) *FloatValue {
+	v := new(FloatValue)
+	*v = FloatValue(value)
+	return v
 }
 
 // FloatValue is a wrapper for the float64 type and
