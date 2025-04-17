@@ -25,14 +25,14 @@ type Country struct {
 
 // RequestNestedAddress is an address nested in another entity in the body of requests to Visma.net
 type RequestNestedAddress struct {
-	AddressLine1    StringValue `json:"addressLine1,omitempty"`
-	AddressLine2    StringValue `json:"addressLine2,omitempty"`
-	AddressLine3    StringValue `json:"addressLine3,omitempty"`
-	PostalCode      StringValue `json:"postalCode,omitempty"`
-	City            StringValue `json:"city,omitempty"`
-	CountryID       StringValue `json:"countryId,omitempty"`
-	County          StringValue `json:"county,omitempty"`
-	OverrideAddress BoolValue   `json:"overrideAddress,omitempty"`
+	AddressLine1    *StringValue `json:"addressLine1,omitempty"`
+	AddressLine2    *StringValue `json:"addressLine2,omitempty"`
+	AddressLine3    *StringValue `json:"addressLine3,omitempty"`
+	PostalCode      *StringValue `json:"postalCode,omitempty"`
+	City            *StringValue `json:"city,omitempty"`
+	CountryID       *StringValue `json:"countryId,omitempty"`
+	County          *StringValue `json:"county,omitempty"`
+	OverrideAddress *BoolValue   `json:"overrideAddress,omitempty"`
 }
 
 // MarshalJSON wraps the Address in a Value struct and marshals it into a JSON byte slice

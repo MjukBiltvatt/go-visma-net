@@ -1,6 +1,6 @@
 package vismanet
 
 const (
-	Version   = "1.3.0"
+	Version   = "2.0.0"
 	UserAgent = "go-visma-net/" + Version
 )
