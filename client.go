@@ -172,3 +172,10 @@ func (c *Client) NewPostCustomerInvoiceAttachmentV1Request() PostCustomerInvoice
 func (c *Client) NewPutAttachmentV1Request() PutAttachmentV1Request {
 	return newPutAttachmentV1Request(c)
 }
+
+// ========== Location ==========
+
+// NewPutLocationV1Request creates a new PutLocationV1Request
+func (c *Client) NewPutLocationV1Request() PutLocationV1Request {
+	return newPutLocationV1Request(c)
+}
