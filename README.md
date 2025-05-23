@@ -224,6 +224,25 @@ if err != nil {
 fmt.Println("Invoice created successfully:", resp.ResourceID())
 ```
 
+## Location
+
+### PUT `/controller/api/v1/location/{bAccountId}/{locationId}`
+
+Update an existing location with the specified ID for an account with the specified ID.
+
+```go
+req := testClient.NewPutLocationV1Request()
+req.SetPathParams(PutLocationV1PathParams{
+	BAccountID: customerNumber,
+	LocationID: "Main",
+})
+req.SetBody(RequestLocation{LocationName: vismanet.NewStringValue("My location")})
+if err != nil {
+	fmt.Println("Error updating location:", err)
+}
+fmt.Println("Location updated successfully:", resp.ResourceID())
+```
+
 # Testing
 
 Set up your testing environment by copying the contents of `.env.template` to a `.env` file. After that you can use [godotenv](https://github.com/joho/godotenv) to set the environment variables required for testing.
