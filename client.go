@@ -24,7 +24,7 @@ func NewClient(httpClient *http.Client) *Client {
 		BaseURL: url.URL{
 			Scheme: "https",
 			Host:   "api.finance.visma.net",
-			Path:   "/API/",
+			Path:   "/",
 		},
 		Debug:     false,
 		DebugBody: true,

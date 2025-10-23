@@ -46,7 +46,7 @@ func newPutLocationV1Request(c *Client) PutLocationV1Request {
 	return PutLocationV1Request{
 		Client: c,
 		Method: "PUT",
-		Path:   "controller/api/v1/location/{{.b_account_id}}/{{.location_id}}",
+		Path:   "v1/location/{{.b_account_id}}/{{.location_id}}",
 	}
 }
 
