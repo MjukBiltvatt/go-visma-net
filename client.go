@@ -23,7 +23,7 @@ func NewClient(httpClient *http.Client) *Client {
 		Http: httpClient,
 		BaseURL: url.URL{
 			Scheme: "https",
-			Host:   "integration.visma.net",
+			Host:   "api.finance.visma.net",
 			Path:   "/API/",
 		},
 		Debug:     false,
