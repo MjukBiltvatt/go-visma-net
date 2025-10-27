@@ -329,7 +329,7 @@ func newGetCustomerInvoiceV1Request(c *Client) GetCustomerInvoiceV1Request {
 	return GetCustomerInvoiceV1Request{
 		Client: c,
 		Method: "GET",
-		Path:   "controller/api/v1/customerinvoice/{{.invoice_number}}",
+		Path:   "v1/customerinvoice/{{.invoice_number}}",
 	}
 }
 
@@ -375,7 +375,7 @@ func newPostCustomerInvoiceV2Request(c *Client) PostCustomerInvoiceV2Request {
 	return PostCustomerInvoiceV2Request{
 		Client: c,
 		Method: "POST",
-		Path:   "controller/api/v2/customerinvoice",
+		Path:   "v2/customerinvoice",
 		Body:   JSONRequestBody{},
 	}
 }
@@ -404,7 +404,7 @@ func newPostCustomerInvoiceAttachmentV1Request(c *Client) PostCustomerInvoiceAtt
 	return PostCustomerInvoiceAttachmentV1Request{
 		Client: c,
 		Method: "POST",
-		Path:   "controller/api/v1/customerinvoice/{{.invoice_number}}/attachment",
+		Path:   "v1/customerinvoice/{{.invoice_number}}/attachment",
 		Body:   FileUploadBody{},
 	}
 }
@@ -447,7 +447,7 @@ func newDeleteCustomerInvoiceV1Request(c *Client) DeleteCustomerInvoiceV1Request
 	return DeleteCustomerInvoiceV1Request{
 		Client: c,
 		Method: "DELETE",
-		Path:   "controller/api/v1/customerinvoice/{{.invoice_number}}",
+		Path:   "v1/customerinvoice/{{.invoice_number}}",
 	}
 }
 

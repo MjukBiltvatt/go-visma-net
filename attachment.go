@@ -20,7 +20,7 @@ func newPutAttachmentV1Request(c *Client) PutAttachmentV1Request {
 	return PutAttachmentV1Request{
 		Client: c,
 		Method: "PUT",
-		Path:   "controller/api/v1/attachment/{{.attachment_id}}",
+		Path:   "v1/attachment/{{.attachment_id}}",
 		Body:   JSONRequestBody{},
 	}
 }

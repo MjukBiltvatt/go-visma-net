@@ -37,7 +37,7 @@ client := vismanet.NewClient(httpClient)
 
 ## Attachment
 
-### PUT `/controller/api/v1/attachment/{attachmentId}`
+### PUT `/v1/attachment/{attachmentId}`
 
 Update an existing attachment with the specified ID.
 
@@ -53,7 +53,7 @@ fmt.Println("Attachment updated successfully:", resp.ResourceID())
 
 ## Customer
 
-### GET `/controller/api/v1/customer/{customerCd}`
+### GET `/v1/customer/{customerCd}`
 
 Get a customer with a specific customer number.
 
@@ -73,7 +73,7 @@ if err != nil {
 fmt.Println("Customer retrieved successfully:", resp.Customer.Number)
 ```
 
-### POST `/controller/api/v1/customer`
+### POST `/v1/customer`
 
 Create a new customer.
 
@@ -95,7 +95,7 @@ if err != nil {
 fmt.Println("Customer created successfully:", resp.ResourceID())
 ```
 
-### PUT `/controller/api/v1/customer/{customerCd}`
+### PUT `/v1/customer/{customerCd}`
 
 Update an existing customer with the specified customer number.
 
@@ -116,7 +116,7 @@ fmt.Println("Customer updated successfully:", resp.ResourceID())
 
 ## CustomerInvoice
 
-### GET `/controller/api/v1/customerinvoice/{invoiceNumber}`
+### GET `/v1/customerinvoice/{invoiceNumber}`
 
 Get a customer invoice with a specific invoice number.
 
@@ -136,7 +136,7 @@ if err != nil {
 fmt.Println("Invoice retrieved successfully:", resp.Customer.Number)
 ```
 
-### DELETE `/controller/api/v1/customerinvoice/{invoiceNumber}`
+### DELETE `/v1/customerinvoice/{invoiceNumber}`
 
 Delete a customer invoice with a specific invoice number.
 
@@ -156,7 +156,7 @@ if err != nil {
 fmt.Println("Invoice deleted successfully")
 ```
 
-### POST `/controller/api/v1/customerinvoice/{invoiceNumber}/attachment`
+### POST `/v1/customerinvoice/{invoiceNumber}/attachment`
 
 Upload a file as an attachment to a customer invoice.
 
@@ -182,7 +182,7 @@ fmt.Println("Attachment created successfully:", resp.ResourceID())
 
 ## CustomerInvoiceV2
 
-### POST `/controller/api/v2/customerinvoice`
+### POST `/v2/customerinvoice`
 
 Create a new customer invoice.
 
@@ -226,7 +226,7 @@ fmt.Println("Invoice created successfully:", resp.ResourceID())
 
 ## Location
 
-### PUT `/controller/api/v1/location/{bAccountId}/{locationId}`
+### PUT `/v1/location/{bAccountId}/{locationId}`
 
 Update an existing location with the specified ID for an account with the specified ID.
 

@@ -145,7 +145,7 @@ func newGetCustomerV1Request(c *Client) GetCustomerV1Request {
 	return GetCustomerV1Request{
 		Client: c,
 		Method: "GET",
-		Path:   "controller/api/v1/customer/{{.customer_cd}}",
+		Path:   "v1/customer/{{.customer_cd}}",
 	}
 }
 
@@ -184,7 +184,7 @@ func newPostCustomerV1Request(c *Client) PostCustomerV1Request {
 	return PostCustomerV1Request{
 		Client: c,
 		Method: "POST",
-		Path:   "controller/api/v1/customer",
+		Path:   "v1/customer",
 	}
 }
 
@@ -216,7 +216,7 @@ func newPutCustomerV1Request(c *Client) PutCustomerV1Request {
 	return PutCustomerV1Request{
 		Client: c,
 		Method: "PUT",
-		Path:   "controller/api/v1/customer/{{.customer_cd}}",
+		Path:   "v1/customer/{{.customer_cd}}",
 	}
 }
 
