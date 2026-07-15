@@ -1,10 +1,153 @@
 package vismanet
 
 import (
+	"encoding/json"
+	"fmt"
 	"net/http"
+	"net/http/httptest"
+	"net/url"
 	"os"
+	"strconv"
+	"sync/atomic"
 	"testing"
 )
+
+func TestGetCustomerInvoiceV1URL(t *testing.T) {
+	c := NewClient(nil)
+
+	// Do() defaults empty path params before building the URL, so the {{if .invoice_number}}
+	// segment resolves. These cases call url() directly to stay offline, so they mimic that guard.
+	buildURL := func(req GetCustomerInvoiceV1Request) (string, error) {
+		if (*Request)(&req).pathParams == nil {
+			req.SetPathParams(GetCustomerInvoiceV1PathParams{})
+		}
+		return (*Request)(&req).url()
+	}
+
+	// With query parameters set and no invoice number, the request targets the list/filter endpoint.
+	list := c.NewGetCustomerInvoiceV1Request()
+	list.SetQueryParams(GetCustomerInvoiceV1QueryParams{DocumentType: "Invoice", Status: "Open"})
+	got, err := buildURL(list)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if want := "https://api.finance.visma.net/v1/customerinvoice?documentType=Invoice&status=Open"; got != want {
+		t.Errorf("list URL: expected %q, got %q", want, got)
+	}
+
+	// With an invoice number set, the request targets a single invoice and sends no query string.
+	single := c.NewGetCustomerInvoiceV1Request()
+	single.SetPathParams(GetCustomerInvoiceV1PathParams{InvoiceNumber: "12345"})
+	got, err = buildURL(single)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if want := "https://api.finance.visma.net/v1/customerinvoice/12345"; got != want {
+		t.Errorf("single URL: expected %q, got %q", want, got)
+	}
+
+	// Empty query fields must be omitted entirely.
+	partial := c.NewGetCustomerInvoiceV1Request()
+	partial.SetQueryParams(GetCustomerInvoiceV1QueryParams{Status: "Open"})
+	got, err = buildURL(partial)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if want := "https://api.finance.visma.net/v1/customerinvoice?status=Open"; got != want {
+		t.Errorf("partial URL: expected %q, got %q", want, got)
+	}
+
+	// Integer pagination params are rendered, and zero values omitted.
+	paged := c.NewGetCustomerInvoiceV1Request()
+	paged.SetQueryParams(GetCustomerInvoiceV1QueryParams{Status: "Open", PageNumber: 2, PageSize: 1000})
+	got, err = buildURL(paged)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if want := "https://api.finance.visma.net/v1/customerinvoice?pageNumber=2&pageSize=1000&status=Open"; got != want {
+		t.Errorf("paged URL: expected %q, got %q", want, got)
+	}
+}
+
+func TestGetCustomerInvoiceV1DoAll(t *testing.T) {
+	const totalCount, maxPageSize = 7, 3
+
+	// Serves the customerinvoice list endpoint with pagination and metadata, so DoAll can be
+	// exercised without hitting the live API. The API's default page size equals maxPageSize.
+	var requests int32
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
+		atomic.AddInt32(&requests, 1)
+		q := req.URL.Query()
+
+		// The caller's filters must be preserved on every page.
+		if q.Get("documentType") != "Invoice" || q.Get("status") != "Open" {
+			t.Errorf("missing filters on request %s", req.URL.String())
+			w.WriteHeader(http.StatusBadRequest)
+			return
+		}
+
+		pageNumber, _ := strconv.Atoi(q.Get("pageNumber"))
+		if pageNumber == 0 {
+			pageNumber = 1
+		}
+		pageSize, _ := strconv.Atoi(q.Get("pageSize"))
+		if pageSize == 0 || pageSize > maxPageSize {
+			pageSize = maxPageSize
+		}
+
+		start := (pageNumber - 1) * pageSize
+		end := start + pageSize
+		if end > totalCount {
+			end = totalCount
+		}
+
+		invoices := []map[string]interface{}{}
+		for i := start; i < end; i++ {
+			invoices = append(invoices, map[string]interface{}{
+				"referenceNumber": fmt.Sprintf("INV-%d", i+1),
+				"metadata":        map[string]int{"totalCount": totalCount, "maxPageSize": maxPageSize},
+			})
+		}
+
+		w.Header().Set("Content-Type", "application/json")
+		_ = json.NewEncoder(w).Encode(invoices)
+	}))
+	defer server.Close()
+
+	srvURL, _ := url.Parse(server.URL)
+	c := NewClient(nil)
+	c.BaseURL = url.URL{Scheme: srvURL.Scheme, Host: srvURL.Host, Path: "/"}
+
+	assertAll := func(name string, params GetCustomerInvoiceV1QueryParams) {
+		atomic.StoreInt32(&requests, 0)
+
+		req := c.NewGetCustomerInvoiceV1Request()
+		req.SetQueryParams(params)
+		resp, err := req.DoAll()
+		if err != nil {
+			t.Fatalf("%s: %v", name, err)
+		}
+
+		if len(resp.Invoices) != totalCount {
+			t.Fatalf("%s: expected %d invoices, got %d", name, totalCount, len(resp.Invoices))
+		}
+		for i, inv := range resp.Invoices {
+			if want := fmt.Sprintf("INV-%d", i+1); inv.ReferenceNumber != want {
+				t.Errorf("%s: invoice %d: expected %s, got %s", name, i, want, inv.ReferenceNumber)
+			}
+		}
+
+		// 3 pages, none fetched twice: the discovery response is reused rather than re-fetched.
+		if got := atomic.LoadInt32(&requests); got != 3 {
+			t.Errorf("%s: expected 3 requests, got %d", name, got)
+		}
+	}
+
+	// Page size unset: the default page size equals maxPageSize, so the discovery page is reused.
+	assertAll("default page size", GetCustomerInvoiceV1QueryParams{DocumentType: "Invoice", Status: "Open"})
+	// Page size set to the max: same reuse behavior.
+	assertAll("explicit page size", GetCustomerInvoiceV1QueryParams{DocumentType: "Invoice", Status: "Open", PageSize: 3})
+}
 
 func TestGetCustomerInvoiceV1(t *testing.T) {
 	invoiceNumber := os.Getenv("TEST_CUSTOMER_INVOICE_NUMBER")

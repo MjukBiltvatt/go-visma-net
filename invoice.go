@@ -329,7 +329,9 @@ func newGetCustomerInvoiceV1Request(c *Client) GetCustomerInvoiceV1Request {
 	return GetCustomerInvoiceV1Request{
 		Client: c,
 		Method: "GET",
-		Path:   "v1/customerinvoice/{{.invoice_number}}",
+		// The invoice number segment is only added when set, so the same request can either
+		// fetch a single invoice by number or list/filter invoices via query parameters.
+		Path: "v1/customerinvoice{{if .invoice_number}}/{{.invoice_number}}{{end}}",
 	}
 }
 
@@ -339,6 +341,11 @@ type GetCustomerInvoiceV1Request Request
 // SetPathParams sets the path parameters of the request
 func (r *GetCustomerInvoiceV1Request) SetPathParams(params GetCustomerInvoiceV1PathParams) {
 	r.pathParams = params
+}
+
+// SetQueryParams sets the query parameters of the request
+func (r *GetCustomerInvoiceV1Request) SetQueryParams(params GetCustomerInvoiceV1QueryParams) {
+	r.queryParams = params
 }
 
 // Do performs the request and returns the response
@@ -355,9 +362,70 @@ func (r *GetCustomerInvoiceV1Request) Do() (GetCustomerInvoiceV1Response, error)
 	return GetCustomerInvoiceV1Response{Response{resp}, invoices}, err
 }
 
+// DoAll performs the request across all result pages and returns every invoice combined into a
+// single response. It issues the first request to discover the total record count and the server's
+// maximum page size (both reported in each invoice's metadata), then fetches the remaining pages.
+// Any caller-set query parameters (documentType, status, ...) are preserved on every page.
+func (r *GetCustomerInvoiceV1Request) DoAll() (GetCustomerInvoiceV1Response, error) {
+	params, _ := r.queryParams.(GetCustomerInvoiceV1QueryParams)
+
+	// Fetch the first page to discover the total count and the maximum page size.
+	params.PageNumber = 1
+	r.SetQueryParams(params)
+	first, err := r.Do()
+	if err != nil || len(first.Invoices) == 0 {
+		return first, err
+	}
+	meta := first.Invoices[0].Metadata
+
+	// Paginate at the caller's page size when set and within bounds, otherwise at the maximum. The
+	// API's default page size equals maxPageSize, so an unset size means page 1 was fetched at it.
+	pageSize := params.PageSize
+	if pageSize <= 0 || pageSize > meta.MaxPageSize {
+		pageSize = meta.MaxPageSize
+	}
+	if pageSize <= 0 {
+		// No usable page size reported; return the single page we already have.
+		return first, nil
+	}
+
+	// The discovery response already holds page 1 at the size we're paginating with, so reuse it and
+	// continue from page 2. Only a caller-requested size above the maximum makes page 1 use a
+	// different size, in which case re-fetch from page 1.
+	invoices := first.Invoices
+	page := 2
+	if params.PageSize > meta.MaxPageSize {
+		invoices = nil
+		page = 1
+	}
+
+	pages := (meta.TotalCount + pageSize - 1) / pageSize
+	for ; page <= pages; page++ {
+		params.PageNumber = page
+		params.PageSize = pageSize
+		r.SetQueryParams(params)
+		resp, err := r.Do()
+		if err != nil {
+			return GetCustomerInvoiceV1Response{first.Response, invoices}, err
+		}
+		invoices = append(invoices, resp.Invoices...)
+	}
+
+	return GetCustomerInvoiceV1Response{first.Response, invoices}, nil
+}
+
 // GetCustomerInvoiceV1PathParams represents the path parameters of the GetCustomerInvoiceV1Request
 type GetCustomerInvoiceV1PathParams struct {
 	InvoiceNumber string `schema:"invoice_number"`
+}
+
+// GetCustomerInvoiceV1QueryParams represents the query parameters of the GetCustomerInvoiceV1Request.
+// Zero-value fields are omitted from the request URL.
+type GetCustomerInvoiceV1QueryParams struct {
+	DocumentType string `schema:"documentType"`
+	Status       string `schema:"status"`
+	PageNumber   int    `schema:"pageNumber"`
+	PageSize     int    `schema:"pageSize"`
 }
 
 // GetCustomerInvoiceV1Response represents the response of the GetCustomerInvoiceV1Request and contains the resulting invoices
