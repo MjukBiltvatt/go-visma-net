@@ -1,6 +1,9 @@
 package vismanet
 
-import "encoding/json"
+import (
+	"encoding/json"
+	"sync"
+)
 
 // ResponseInvoice is an invoice as represented in a response from the Visma.net API
 type ResponseInvoice struct {
@@ -363,52 +366,76 @@ func (r *GetCustomerInvoiceV1Request) Do() (GetCustomerInvoiceV1Response, error)
 }
 
 // DoAll performs the request across all result pages and returns every invoice combined into a
-// single response. It issues the first request to discover the total record count and the server's
-// maximum page size (both reported in each invoice's metadata), then fetches the remaining pages.
-// Any caller-set query parameters (documentType, status, ...) are preserved on every page.
+// single response, in page order. It always fetches at the API's default page size. An initial
+// "find" request retrieves page 1 to read the total count and page size from the metadata; the
+// remaining pages are then fetched by a fixed pool of at most Client.Concurrency workers (default
+// DefaultConcurrency), so the concurrency is bounded and independent of the number of pages. Any
+// caller-set query parameters (documentType, status, ...) are preserved on every page; a
+// caller-set page size is ignored.
 func (r *GetCustomerInvoiceV1Request) DoAll() (GetCustomerInvoiceV1Response, error) {
-	params, _ := r.queryParams.(GetCustomerInvoiceV1QueryParams)
+	base, _ := r.queryParams.(GetCustomerInvoiceV1QueryParams)
+	base.PageSize = 0 // always fetch at the API's default page size
 
-	// Fetch the first page to discover the total count and the maximum page size.
-	params.PageNumber = 1
-	r.SetQueryParams(params)
-	first, err := r.Do()
+	// fetchPage runs an independent request for a single page. Each call builds its own request so
+	// pages can be fetched concurrently without sharing (and racing on) the receiver.
+	fetchPage := func(page int) (GetCustomerInvoiceV1Response, error) {
+		params := base
+		params.PageNumber = page
+		req := r.Client.NewGetCustomerInvoiceV1Request()
+		req.SetQueryParams(params)
+		return req.Do()
+	}
+
+	// Initial find: fetch page 1 to discover the total count and the page size from the metadata.
+	first, err := fetchPage(1)
 	if err != nil || len(first.Invoices) == 0 {
 		return first, err
 	}
 	meta := first.Invoices[0].Metadata
 
-	// Paginate at the caller's page size when set and within bounds, otherwise at the maximum. The
-	// API's default page size equals maxPageSize, so an unset size means page 1 was fetched at it.
-	pageSize := params.PageSize
-	if pageSize <= 0 || pageSize > meta.MaxPageSize {
-		pageSize = meta.MaxPageSize
-	}
+	// The default page size equals maxPageSize, so that is how many records each page holds.
+	pageSize := meta.MaxPageSize
 	if pageSize <= 0 {
 		// No usable page size reported; return the single page we already have.
 		return first, nil
 	}
-
-	// The discovery response already holds page 1 at the size we're paginating with, so reuse it and
-	// continue from page 2. Only a caller-requested size above the maximum makes page 1 use a
-	// different size, in which case re-fetch from page 1.
-	invoices := first.Invoices
-	page := 2
-	if params.PageSize > meta.MaxPageSize {
-		invoices = nil
-		page = 1
+	pages := (meta.TotalCount + pageSize - 1) / pageSize
+	if pages <= 1 {
+		return first, nil
 	}
 
-	pages := (meta.TotalCount + pageSize - 1) / pageSize
-	for ; page <= pages; page++ {
-		params.PageNumber = page
-		params.PageSize = pageSize
-		r.SetQueryParams(params)
-		resp, err := r.Do()
-		if err != nil {
-			return GetCustomerInvoiceV1Response{first.Response, invoices}, err
+	// Fetch the remaining pages (2..pages) with a fixed pool of at most `concurrency` workers. A
+	// buffered channel acts as the semaphore; acquiring before launching each goroutine bounds both
+	// the in-flight requests and the number of live goroutines, so neither scales with page count.
+	// Each worker writes to its own slot, so results stay in page order and require no locking.
+	concurrency := r.Client.Concurrency
+	if concurrency <= 0 {
+		concurrency = DefaultConcurrency
+	}
+	pageInvoices := make([][]ResponseInvoice, pages+1)
+	pageErrs := make([]error, pages+1)
+	sem := make(chan struct{}, concurrency)
+	var wg sync.WaitGroup
+	for page := 2; page <= pages; page++ {
+		wg.Add(1)
+		sem <- struct{}{} // acquire; blocks once `concurrency` fetches are in flight
+		go func(page int) {
+			defer wg.Done()
+			defer func() { <-sem }() // release
+			resp, err := fetchPage(page)
+			pageInvoices[page] = resp.Invoices
+			pageErrs[page] = err
+		}(page)
+	}
+	wg.Wait()
+
+	// Assemble in page order, surfacing the first error along with the invoices gathered so far.
+	invoices := first.Invoices
+	for page := 2; page <= pages; page++ {
+		if pageErrs[page] != nil {
+			return GetCustomerInvoiceV1Response{first.Response, invoices}, pageErrs[page]
 		}
-		invoices = append(invoices, resp.Invoices...)
+		invoices = append(invoices, pageInvoices[page]...)
 	}
 
 	return GetCustomerInvoiceV1Response{first.Response, invoices}, nil

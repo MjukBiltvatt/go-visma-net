@@ -11,6 +11,10 @@ import (
 	"time"
 )
 
+// DefaultConcurrency is the worker-pool size DoAll-style paged fetches use when
+// Client.Concurrency is unset. Kept small as a conservative default for a rate-limited API.
+const DefaultConcurrency = 5
+
 // NewClient returns a new Visma Net client either using the specified http.Client, or if nil the default http.Client.
 func NewClient(httpClient *http.Client) *Client {
 	if httpClient == nil {
@@ -26,21 +30,23 @@ func NewClient(httpClient *http.Client) *Client {
 			Host:   "api.finance.visma.net",
 			Path:   "/",
 		},
-		Debug:     false,
-		DebugBody: true,
-		UserAgent: UserAgent,
-		Charset:   "utf-8",
+		Debug:       false,
+		DebugBody:   true,
+		UserAgent:   UserAgent,
+		Charset:     "utf-8",
+		Concurrency: DefaultConcurrency,
 	}
 }
 
 // Client is a Visma Net client for making Visma Net API requests.
 type Client struct {
-	Http      *http.Client // Http is the http client used to make requests
-	BaseURL   url.URL      // BaseURL is the base URL of the Visma Net API
-	Debug     bool         // Debug enables debugging output of requests and responses
-	DebugBody bool         // DebugBody enables debugging output of request and response bodies
-	UserAgent string       // UserAgent is the string used in the User-Agent header in requests
-	Charset   string       // Charset is the character set used in the Content-Type header in requests
+	Http        *http.Client // Http is the http client used to make requests
+	BaseURL     url.URL      // BaseURL is the base URL of the Visma Net API
+	Debug       bool         // Debug enables debugging output of requests and responses
+	DebugBody   bool         // DebugBody enables debugging output of request and response bodies
+	UserAgent   string       // UserAgent is the string used in the User-Agent header in requests
+	Charset     string       // Charset is the character set used in the Content-Type header in requests
+	Concurrency int          // Concurrency is the max number of concurrent page requests for paged fetches (DoAll); DefaultConcurrency if <= 0
 }
 
 // Do the API request and decode the response body into the provided interface

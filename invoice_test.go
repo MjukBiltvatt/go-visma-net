@@ -10,6 +10,7 @@ import (
 	"strconv"
 	"sync/atomic"
 	"testing"
+	"time"
 )
 
 func TestGetCustomerInvoiceV1URL(t *testing.T) {
@@ -137,16 +138,95 @@ func TestGetCustomerInvoiceV1DoAll(t *testing.T) {
 			}
 		}
 
-		// 3 pages, none fetched twice: the discovery response is reused rather than re-fetched.
+		// 1 discovery request + 2 concurrent page fetches = 3; no page is fetched twice.
 		if got := atomic.LoadInt32(&requests); got != 3 {
 			t.Errorf("%s: expected 3 requests, got %d", name, got)
 		}
 	}
 
-	// Page size unset: the default page size equals maxPageSize, so the discovery page is reused.
+	// Page size unset: fetches at the default page size (== maxPageSize).
 	assertAll("default page size", GetCustomerInvoiceV1QueryParams{DocumentType: "Invoice", Status: "Open"})
-	// Page size set to the max: same reuse behavior.
-	assertAll("explicit page size", GetCustomerInvoiceV1QueryParams{DocumentType: "Invoice", Status: "Open", PageSize: 3})
+	// A caller-set page size is ignored: pageSize 2 would need 4 requests if honored, but DoAll
+	// still makes 3 because it always uses the default.
+	assertAll("page size ignored", GetCustomerInvoiceV1QueryParams{DocumentType: "Invoice", Status: "Open", PageSize: 2})
+}
+
+// TestGetCustomerInvoiceV1DoAllConcurrencyBound verifies DoAll never runs more than
+// Client.Concurrency page fetches at once, regardless of how many pages there are. The handler
+// tracks concurrent in-flight requests and records the high-water mark; a small delay widens the
+// window so overlapping requests are observed. With 10 pages and Concurrency 2, an unbounded
+// fan-out would peak near 9; the bounded pool must keep the peak at Concurrency.
+func TestGetCustomerInvoiceV1DoAllConcurrencyBound(t *testing.T) {
+	const totalCount, maxPageSize, concurrency = 20, 2, 2
+
+	var inFlight, maxInFlight int32
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
+		// Record the high-water mark of concurrent requests.
+		cur := atomic.AddInt32(&inFlight, 1)
+		for {
+			old := atomic.LoadInt32(&maxInFlight)
+			if cur <= old || atomic.CompareAndSwapInt32(&maxInFlight, old, cur) {
+				break
+			}
+		}
+		time.Sleep(10 * time.Millisecond) // widen the overlap window
+		defer atomic.AddInt32(&inFlight, -1)
+
+		q := req.URL.Query()
+		pageNumber, _ := strconv.Atoi(q.Get("pageNumber"))
+		if pageNumber == 0 {
+			pageNumber = 1
+		}
+		pageSize, _ := strconv.Atoi(q.Get("pageSize"))
+		if pageSize == 0 || pageSize > maxPageSize {
+			pageSize = maxPageSize
+		}
+
+		start := (pageNumber - 1) * pageSize
+		end := start + pageSize
+		if end > totalCount {
+			end = totalCount
+		}
+
+		invoices := []map[string]interface{}{}
+		for i := start; i < end; i++ {
+			invoices = append(invoices, map[string]interface{}{
+				"referenceNumber": fmt.Sprintf("INV-%d", i+1),
+				"metadata":        map[string]int{"totalCount": totalCount, "maxPageSize": maxPageSize},
+			})
+		}
+
+		w.Header().Set("Content-Type", "application/json")
+		_ = json.NewEncoder(w).Encode(invoices)
+	}))
+	defer server.Close()
+
+	srvURL, _ := url.Parse(server.URL)
+	c := NewClient(nil)
+	c.BaseURL = url.URL{Scheme: srvURL.Scheme, Host: srvURL.Host, Path: "/"}
+	c.Concurrency = concurrency
+
+	req := c.NewGetCustomerInvoiceV1Request()
+	resp, err := req.DoAll()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	// All pages still fetched exactly once, in order.
+	if len(resp.Invoices) != totalCount {
+		t.Fatalf("expected %d invoices, got %d", totalCount, len(resp.Invoices))
+	}
+	for i, inv := range resp.Invoices {
+		if want := fmt.Sprintf("INV-%d", i+1); inv.ReferenceNumber != want {
+			t.Errorf("invoice %d: expected %s, got %s", i, want, inv.ReferenceNumber)
+		}
+	}
+
+	// The discovery request completes before fan-out begins, so the peak should equal Concurrency;
+	// allow +1 as slack against any scheduling overlap.
+	if got := atomic.LoadInt32(&maxInFlight); got > concurrency+1 {
+		t.Errorf("peak concurrent requests %d exceeded Concurrency %d (+1 slack)", got, concurrency)
+	}
 }
 
 func TestGetCustomerInvoiceV1(t *testing.T) {
