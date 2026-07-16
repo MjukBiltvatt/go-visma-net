@@ -55,10 +55,10 @@ func (r *Request) pathParamsMap() map[string]string {
 }
 
 // queryParamsValues returns the query parameters from the queryParams struct, skipping empty values
-func (r *Request) queryParamsValues() url.Values {
+func (r *Request) queryParamsValues() (url.Values, error) {
 	values := url.Values{}
 	if r.queryParams == nil {
-		return values
+		return values, nil
 	}
 
 	//Get the type and value of the query parameters struct
@@ -81,11 +81,11 @@ func (r *Request) queryParamsValues() url.Values {
 				values.Set(name, strconv.FormatInt(value, 10))
 			}
 		default:
-			panic(fmt.Sprintf("unsupported query parameter type: %s", t.Field(i).Type.String()))
+			return nil, fmt.Errorf("unsupported query parameter type %s in field %s", t.Field(i).Type.String(), t.Field(i).Name)
 		}
 	}
 
-	return values
+	return values, nil
 }
 
 // url returns the complete URL of the request
@@ -109,7 +109,11 @@ func (r *Request) url() (string, error) {
 	}
 
 	//Set query parameters
-	u.RawQuery = r.queryParamsValues().Encode()
+	queryValues, err := r.queryParamsValues()
+	if err != nil {
+		return "", err
+	}
+	u.RawQuery = queryValues.Encode()
 
 	return u.String(), nil
 }

@@ -2,6 +2,7 @@ package vismanet
 
 import (
 	"encoding/json"
+	"fmt"
 	"sync"
 )
 
@@ -375,7 +376,11 @@ func (r *GetCustomerInvoiceV1Request) Do() (GetCustomerInvoiceV1Response, error)
 func (r *GetCustomerInvoiceV1Request) DoAll() (GetCustomerInvoiceV1Response, error) {
 	var base GetCustomerInvoiceV1QueryParams
 	if r.queryParams != nil {
-		base = r.queryParams.(GetCustomerInvoiceV1QueryParams) // panics if queryParams is non-nil and wrong type
+		tempBase, ok := r.queryParams.(GetCustomerInvoiceV1QueryParams)
+		if !ok {
+			return GetCustomerInvoiceV1Response{}, fmt.Errorf("invalid query parameters: %T", r.queryParams)
+		}
+		base = tempBase
 	}
 	base.PageSize = 0
 
