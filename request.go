@@ -80,6 +80,8 @@ func (r *Request) queryParamsValues() url.Values {
 			if value := v.Field(i).Int(); value != 0 {
 				values.Set(name, strconv.FormatInt(value, 10))
 			}
+		default:
+			panic(fmt.Sprintf("unsupported query parameter type: %s", t.Field(i).Type.String()))
 		}
 	}
 

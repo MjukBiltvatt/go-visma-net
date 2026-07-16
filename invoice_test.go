@@ -222,10 +222,9 @@ func TestGetCustomerInvoiceV1DoAllConcurrencyBound(t *testing.T) {
 		}
 	}
 
-	// The discovery request completes before fan-out begins, so the peak should equal Concurrency;
-	// allow +1 as slack against any scheduling overlap.
-	if got := atomic.LoadInt32(&maxInFlight); got > concurrency+1 {
-		t.Errorf("peak concurrent requests %d exceeded Concurrency %d (+1 slack)", got, concurrency)
+	// The discovery request completes before fan-out begins, so the peak should equal Concurrency.
+	if got := atomic.LoadInt32(&maxInFlight); got > concurrency {
+		t.Errorf("peak concurrent requests %d exceeded Concurrency %d", got, concurrency)
 	}
 }
 
@@ -292,7 +291,27 @@ func TestDeleteCustomerInvoiceV1(t *testing.T) {
 	}
 }
 
-func TestPostCustomerInvoiceAttachmentV1(t *testing.T) {
+// testPDF is a minimal single-page PDF. The attachment must be a PDF, since
+// the API only allows PDF files to be sent to AutoInvoice.
+const testPDF = `%PDF-1.4
+1 0 obj<</Type/Catalog/Pages 2 0 R>>endobj
+2 0 obj<</Type/Pages/Kids[3 0 R]/Count 1>>endobj
+3 0 obj<</Type/Page/Parent 2 0 R/MediaBox[0 0 612 792]>>endobj
+xref
+0 4
+0000000000 65535 f
+0000000009 00000 n
+0000000052 00000 n
+0000000101 00000 n
+trailer<</Size 4/Root 1 0 R>>
+startxref
+165
+%%EOF`
+
+// uploadTestAttachment uploads a minimal PDF to the invoice in
+// TEST_CUSTOMER_INVOICE_NUMBER and returns the new attachment's ID
+func uploadTestAttachment(t *testing.T) string {
+	t.Helper()
 	req := testClient.NewPostCustomerInvoiceAttachmentV1Request()
 	req.SetPathParams(PostCustomerInvoiceAttachmentV1PathParams{
 		InvoiceNumber: os.Getenv("TEST_CUSTOMER_INVOICE_NUMBER"),
@@ -300,16 +319,21 @@ func TestPostCustomerInvoiceAttachmentV1(t *testing.T) {
 	req.SetBody(FileUploadBody{
 		Files: []File{
 			{
-				Name:    "Test.txt",
-				Content: []byte("test"),
+				Name:    "Test.pdf",
+				Content: []byte(testPDF),
 			},
 		},
 	})
 	resp, err := req.Do()
 	debugDumpResponse(testClient, resp)
 	if err != nil {
-		t.Error(err)
+		t.Fatal(err)
 	} else if resp.ResourceID() == "" {
-		t.Errorf("Expected non-empty resource ID, got %s", resp.ResourceID())
+		t.Fatalf("Expected non-empty resource ID, got %s", resp.ResourceID())
 	}
+	return resp.ResourceID()
+}
+
+func TestPostCustomerInvoiceAttachmentV1(t *testing.T) {
+	uploadTestAttachment(t)
 }
