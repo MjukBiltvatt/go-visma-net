@@ -147,7 +147,7 @@ req.SetQueryParams(GetCustomerInvoiceV1QueryParams{
     DocumentType: "invoice",
     Status: "open",
 })
-resp, err := req.Do()
+resp, err := req.DoAll()
 if err != nil {
 	if resp.StatusCode() == http.StatusNotFound {
 		fmt.Println("Invoices not found")
