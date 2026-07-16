@@ -373,8 +373,11 @@ func (r *GetCustomerInvoiceV1Request) Do() (GetCustomerInvoiceV1Response, error)
 // caller-set query parameters (documentType, status, ...) are preserved on every page; a
 // caller-set page size is ignored.
 func (r *GetCustomerInvoiceV1Request) DoAll() (GetCustomerInvoiceV1Response, error) {
-	base, _ := r.queryParams.(GetCustomerInvoiceV1QueryParams)
-	base.PageSize = 0 // always fetch at the API's default page size
+	var base GetCustomerInvoiceV1QueryParams
+	if r.queryParams != nil {
+		base = r.queryParams.(GetCustomerInvoiceV1QueryParams) // panics if queryParams is non-nil and wrong type
+	}
+	base.PageSize = 0
 
 	// fetchPage runs an independent request for a single page. Each call builds its own request so
 	// pages can be fetched concurrently without sharing (and racing on) the receiver.
