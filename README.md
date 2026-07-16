@@ -136,6 +136,28 @@ if err != nil {
 fmt.Println("Invoice retrieved successfully:", resp.Customer.Number)
 ```
 
+### GET `/v1/customerinvoice`
+
+Get all customer invoices for filter.
+
+```go
+req := testClient.NewGetCustomerInvoiceV1Request()
+req.SetQueryParams(GetCustomerInvoiceV1QueryParams{
+	// Example values, for fetching all open invoices
+    DocumentType: "invoice",
+    Status: "open",
+})
+resp, err := req.Do()
+if err != nil {
+	if resp.StatusCode() == http.StatusNotFound {
+		fmt.Println("Invoices not found")
+	} else {
+		fmt.Println("Error getting invoices:", err)
+	}
+}
+fmt.Println("Invoices retrieved successfully:", len(resp.CustomerInvoices))
+```
+
 ### DELETE `/v1/customerinvoice/{invoiceNumber}`
 
 Delete a customer invoice with a specific invoice number.
