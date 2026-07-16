@@ -101,14 +101,15 @@ func (r *Request) url() (string, error) {
 	}
 
 	//Build the complete URL
-	u := r.Client.BaseURL.String() + buf.String()
-
-	//Append query parameters if any
-	if query := r.queryParamsValues(); len(query) > 0 {
-		u += "?" + query.Encode()
+	u, err := url.Parse(r.Client.BaseURL.String() + buf.String())
+	if err != nil {
+		return "", err
 	}
 
-	return u, nil
+	//Set query parameters
+	u.RawQuery = r.queryParamsValues().Encode()
+
+	return u.String(), nil
 }
 
 // build the http request
