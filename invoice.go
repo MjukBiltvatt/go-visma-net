@@ -1,6 +1,10 @@
 package vismanet
 
-import "encoding/json"
+import (
+	"encoding/json"
+	"fmt"
+	"sync"
+)
 
 // ResponseInvoice is an invoice as represented in a response from the Visma.net API
 type ResponseInvoice struct {
@@ -329,7 +333,9 @@ func newGetCustomerInvoiceV1Request(c *Client) GetCustomerInvoiceV1Request {
 	return GetCustomerInvoiceV1Request{
 		Client: c,
 		Method: "GET",
-		Path:   "v1/customerinvoice/{{.invoice_number}}",
+		// The invoice number segment is only added when set, so the same request can either
+		// fetch a single invoice by number or list/filter invoices via query parameters.
+		Path: "v1/customerinvoice{{if .invoice_number}}/{{.invoice_number}}{{end}}",
 	}
 }
 
@@ -339,6 +345,11 @@ type GetCustomerInvoiceV1Request Request
 // SetPathParams sets the path parameters of the request
 func (r *GetCustomerInvoiceV1Request) SetPathParams(params GetCustomerInvoiceV1PathParams) {
 	r.pathParams = params
+}
+
+// SetQueryParams sets the query parameters of the request
+func (r *GetCustomerInvoiceV1Request) SetQueryParams(params GetCustomerInvoiceV1QueryParams) {
+	r.queryParams = params
 }
 
 // Do performs the request and returns the response
@@ -355,9 +366,101 @@ func (r *GetCustomerInvoiceV1Request) Do() (GetCustomerInvoiceV1Response, error)
 	return GetCustomerInvoiceV1Response{Response{resp}, invoices}, err
 }
 
+// DoAll performs the request across all result pages and returns every invoice combined into a
+// single response, in page order. It always fetches at the API's default page size. An initial
+// "find" request retrieves page 1 to read the total count and page size from the metadata; the
+// remaining pages are then fetched by a fixed pool of at most Client.Concurrency workers (default
+// DefaultConcurrency), so the concurrency is bounded and independent of the number of pages. Any
+// caller-set query parameters (documentType, status, ...) are preserved on every page; a
+// caller-set page size is ignored.
+func (r *GetCustomerInvoiceV1Request) DoAll() (GetCustomerInvoiceV1Response, error) {
+	var base GetCustomerInvoiceV1QueryParams
+	if r.queryParams != nil {
+		tempBase, ok := r.queryParams.(GetCustomerInvoiceV1QueryParams)
+		if !ok {
+			return GetCustomerInvoiceV1Response{}, fmt.Errorf("invalid query parameters: %T", r.queryParams)
+		}
+		base = tempBase
+	}
+	base.PageSize = 0
+
+	// fetchPage runs an independent request for a single page. Each call builds its own request so
+	// pages can be fetched concurrently without sharing (and racing on) the receiver.
+	fetchPage := func(page int) (GetCustomerInvoiceV1Response, error) {
+		params := base
+		params.PageNumber = page
+		req := r.Client.NewGetCustomerInvoiceV1Request()
+		req.SetQueryParams(params)
+		return req.Do()
+	}
+
+	// Initial find: fetch page 1 to discover the total count and the page size from the metadata.
+	first, err := fetchPage(1)
+	if err != nil || len(first.Invoices) == 0 {
+		return first, err
+	}
+	meta := first.Invoices[0].Metadata
+
+	// The default page size equals maxPageSize, so that is how many records each page holds.
+	pageSize := meta.MaxPageSize
+	if pageSize <= 0 {
+		// No usable page size reported; return the single page we already have.
+		return first, nil
+	}
+	pages := (meta.TotalCount + pageSize - 1) / pageSize
+	if pages <= 1 {
+		return first, nil
+	}
+
+	// Fetch the remaining pages (2..pages) with a fixed pool of at most `concurrency` workers. A
+	// buffered channel acts as the semaphore; acquiring before launching each goroutine bounds both
+	// the in-flight requests and the number of live goroutines, so neither scales with page count.
+	// Each worker writes to its own slot, so results stay in page order and require no locking.
+	concurrency := r.Client.Concurrency
+	if concurrency <= 0 {
+		concurrency = DefaultConcurrency
+	}
+	pageInvoices := make([][]ResponseInvoice, pages+1)
+	pageErrs := make([]error, pages+1)
+	sem := make(chan struct{}, concurrency)
+	var wg sync.WaitGroup
+	for page := 2; page <= pages; page++ {
+		wg.Add(1)
+		sem <- struct{}{} // acquire; blocks once `concurrency` fetches are in flight
+		go func(page int) {
+			defer wg.Done()
+			defer func() { <-sem }() // release
+			resp, err := fetchPage(page)
+			pageInvoices[page] = resp.Invoices
+			pageErrs[page] = err
+		}(page)
+	}
+	wg.Wait()
+
+	// Assemble in page order, surfacing the first error along with the invoices gathered so far.
+	invoices := first.Invoices
+	for page := 2; page <= pages; page++ {
+		if pageErrs[page] != nil {
+			return GetCustomerInvoiceV1Response{first.Response, invoices}, pageErrs[page]
+		}
+		invoices = append(invoices, pageInvoices[page]...)
+	}
+
+	return GetCustomerInvoiceV1Response{first.Response, invoices}, nil
+}
+
 // GetCustomerInvoiceV1PathParams represents the path parameters of the GetCustomerInvoiceV1Request
 type GetCustomerInvoiceV1PathParams struct {
 	InvoiceNumber string `schema:"invoice_number"`
+}
+
+// GetCustomerInvoiceV1QueryParams represents the query parameters of the GetCustomerInvoiceV1Request.
+// Zero-value fields are omitted from the request URL.
+type GetCustomerInvoiceV1QueryParams struct {
+	DocumentType string `schema:"documentType"`
+	Status       string `schema:"status"`
+	PageNumber   int    `schema:"pageNumber"`
+	PageSize     int    `schema:"pageSize"`
 }
 
 // GetCustomerInvoiceV1Response represents the response of the GetCustomerInvoiceV1Request and contains the resulting invoices

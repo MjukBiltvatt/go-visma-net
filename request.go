@@ -10,6 +10,7 @@ import (
 	"net/textproto"
 	"net/url"
 	"reflect"
+	"strconv"
 	"text/template"
 )
 
@@ -24,7 +25,7 @@ type Request struct {
 	Method      string
 	Path        string
 	Body        RequestBody
-	queryParams url.Values
+	queryParams interface{}
 	pathParams  interface{}
 }
 
@@ -53,6 +54,40 @@ func (r *Request) pathParamsMap() map[string]string {
 	return params
 }
 
+// queryParamsValues returns the query parameters from the queryParams struct, skipping empty values
+func (r *Request) queryParamsValues() (url.Values, error) {
+	values := url.Values{}
+	if r.queryParams == nil {
+		return values, nil
+	}
+
+	//Get the type and value of the query parameters struct
+	t := reflect.TypeOf(r.queryParams)
+	v := reflect.ValueOf(r.queryParams)
+
+	//Iterate over the fields of the query parameters struct and add any non-zero string or int fields with a schema tag
+	for i := 0; i < t.NumField(); i++ {
+		name, ok := t.Field(i).Tag.Lookup("schema")
+		if !ok {
+			continue
+		}
+		switch v.Field(i).Kind() {
+		case reflect.String:
+			if value := v.Field(i).String(); value != "" {
+				values.Set(name, value)
+			}
+		case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
+			if value := v.Field(i).Int(); value != 0 {
+				values.Set(name, strconv.FormatInt(value, 10))
+			}
+		default:
+			return nil, fmt.Errorf("unsupported query parameter type %s in field %s", t.Field(i).Type.String(), t.Field(i).Name)
+		}
+	}
+
+	return values, nil
+}
+
 // url returns the complete URL of the request
 func (r *Request) url() (string, error) {
 	//Parse path template
@@ -67,8 +102,20 @@ func (r *Request) url() (string, error) {
 		return "", err
 	}
 
-	//Return the complete URL
-	return r.Client.BaseURL.String() + buf.String(), nil
+	//Build the complete URL
+	u, err := url.Parse(r.Client.BaseURL.String() + buf.String())
+	if err != nil {
+		return "", err
+	}
+
+	//Set query parameters
+	queryValues, err := r.queryParamsValues()
+	if err != nil {
+		return "", err
+	}
+	u.RawQuery = queryValues.Encode()
+
+	return u.String(), nil
 }
 
 // build the http request

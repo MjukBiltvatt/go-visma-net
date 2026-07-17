@@ -1,12 +1,11 @@
 package vismanet
 
 import (
-	"os"
 	"testing"
 )
 
 func TestPutAttachmentV1(t *testing.T) {
-	id := os.Getenv("TEST_ATTACHMENT_ID")
+	id := uploadTestAttachment(t)
 	req := testClient.NewPutAttachmentV1Request()
 	req.SetPathParams(PutAttachmentV1PathParams{id})
 	req.SetBody(RequestAttachment{SendToAutoInvoice: true})
