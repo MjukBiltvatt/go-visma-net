@@ -72,6 +72,15 @@ func (c *Client) Do(req *Request, body ...interface{}) (*http.Response, error) {
 		return resp, fmt.Errorf("http request failed: %w", err)
 	}
 
+	// The response body returned by the http client must be closed by us. Apart from releasing the
+	// connection, closing is also what disarms the http.Client.Timeout timer; reading the body to
+	// EOF does not. Leaving the timer armed makes net/http fall back to its legacy cancel path once
+	// it fires, which calls the deprecated CancelRequest on non-stdlib transports (for example
+	// oauth2.Transport, which then prints a deprecation warning to stderr).
+	// Keep a reference to the original body since debug dumping below replaces resp.Body with a copy.
+	origBody := resp.Body
+	defer origBody.Close()
+
 	// Dump response if debugging is enabled
 	if c.Debug {
 		dump, err := httputil.DumpResponse(resp, c.DebugBody)
@@ -83,8 +92,14 @@ func (c *Client) Do(req *Request, body ...interface{}) (*http.Response, error) {
 
 	// Read the response body into a buffer
 	var buf bytes.Buffer
-	if _, err := io.Copy(&buf, resp.Body); err != nil {
-		return resp, fmt.Errorf("failed to read response body: %w", err)
+	_, readErr := io.Copy(&buf, resp.Body)
+
+	// Replace the response body with the buffered copy. The original body is closed when Do
+	// returns, so this is what lets callers of Do read the body of the returned response.
+	resp.Body = io.NopCloser(bytes.NewReader(buf.Bytes()))
+
+	if readErr != nil {
+		return resp, fmt.Errorf("failed to read response body: %w", readErr)
 	}
 
 	// Check response status code
