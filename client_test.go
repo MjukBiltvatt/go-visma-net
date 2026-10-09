@@ -34,7 +34,7 @@ func TestMain(m *testing.M) {
 // trackedBody is a response body that records whether it has been closed.
 type trackedBody struct {
 	io.Reader
-	closed   bool
+	closes   int
 	readErr  error
 	readSome bool
 }
@@ -52,7 +52,7 @@ func (b *trackedBody) Read(p []byte) (int, error) {
 }
 
 func (b *trackedBody) Close() error {
-	b.closed = true
+	b.closes++
 	return nil
 }
 
@@ -78,27 +78,57 @@ func newStubClient(status int, body *trackedBody) *Client {
 	})
 }
 
+// captureStdout redirects os.Stdout to a temporary file for the rest of the test, so debug dumps
+// don't clutter the test output. The returned function reads what has been written so far.
+func captureStdout(t *testing.T) func() string {
+	t.Helper()
+	f, err := os.CreateTemp(t.TempDir(), "stdout")
+	if err != nil {
+		t.Fatalf("failed to create stdout capture file: %v", err)
+	}
+	stdout := os.Stdout
+	os.Stdout = f
+	t.Cleanup(func() {
+		os.Stdout = stdout
+		f.Close()
+	})
+	return func() string {
+		b, err := os.ReadFile(f.Name())
+		if err != nil {
+			t.Fatalf("failed to read captured stdout: %v", err)
+		}
+		return string(b)
+	}
+}
+
 func TestDoClosesResponseBody(t *testing.T) {
-	// The body of the response handed to Do must always be closed, whatever the status code is and
-	// whether or not reading it succeeds. net/http requires it, and it is what disarms the
-	// http.Client.Timeout timer. The returned response must still expose a readable body, since Do
-	// returns the response to its callers.
+	// The body of the response handed to Do must be closed exactly once, whatever the status code
+	// is, whether or not reading it succeeds and whether or not debugging is enabled. net/http
+	// requires it, and it is what disarms the http.Client.Timeout timer. The returned response must
+	// behave like the drained body Do has always returned: it reads as empty and closes cleanly.
 	cases := []struct {
 		name    string
 		status  int
 		body    string
 		readErr error
+		debug   bool
 		wantErr bool
 	}{
 		{name: "success", status: http.StatusOK, body: `{"referenceNumber":"INV-1"}`},
 		{name: "error status", status: http.StatusBadRequest, body: `{"Message":"bad request"}`, wantErr: true},
 		{name: "read error", status: http.StatusOK, body: `{}`, readErr: io.ErrUnexpectedEOF, wantErr: true},
+		{name: "debug success", status: http.StatusOK, body: `{"referenceNumber":"INV-1"}`, debug: true},
+		{name: "debug error status", status: http.StatusBadRequest, body: `{"Message":"bad request"}`, debug: true, wantErr: true},
+		{name: "debug read error", status: http.StatusOK, body: `{}`, readErr: io.ErrUnexpectedEOF, debug: true, wantErr: true},
 	}
 
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
 			body := &trackedBody{Reader: bytes.NewReader([]byte(tc.body)), readErr: tc.readErr}
 			c := newStubClient(tc.status, body)
+			c.Debug = tc.debug
+			c.DebugBody = true
+			stdout := captureStdout(t)
 
 			req := c.NewGetCustomerInvoiceV1Request()
 			req.SetPathParams(GetCustomerInvoiceV1PathParams{InvoiceNumber: "12345"})
@@ -110,49 +140,30 @@ func TestDoClosesResponseBody(t *testing.T) {
 				t.Fatalf("unexpected error: %v", err)
 			}
 
-			if !body.closed {
-				t.Error("expected the original response body to be closed")
+			if body.closes != 1 {
+				t.Errorf("expected the original response body to be closed once, got %d closes", body.closes)
 			}
 			if resp == nil {
 				t.Fatal("expected a response, got nil")
 			}
 
-			// The returned body must be readable, and must not be the (now closed) original.
+			// The returned body must not be the (now closed) original, and must not hold on to the
+			// body bytes.
 			got, err := io.ReadAll(resp.Body)
 			if err != nil {
 				t.Fatalf("failed to read the returned response body: %v", err)
 			}
-			if tc.readErr == nil && string(got) != tc.body {
-				t.Errorf("expected returned body %q, got %q", tc.body, string(got))
+			if len(got) != 0 {
+				t.Errorf("expected the returned response body to be empty, got %q", string(got))
 			}
 			if err := resp.Body.Close(); err != nil {
 				t.Errorf("failed to close the returned response body: %v", err)
 			}
+
+			// The debug dump must still include the response body, even though it has been closed.
+			if tc.debug && tc.readErr == nil && !strings.Contains(stdout(), tc.body) {
+				t.Errorf("expected the debug output to contain the response body %q", tc.body)
+			}
 		})
-	}
-}
-
-func TestDoClosesResponseBodyWhenDebugging(t *testing.T) {
-	// Debug dumping replaces resp.Body with a copy of its own, so the buffering and closing in Do
-	// has to keep working when it is enabled.
-	body := &trackedBody{Reader: bytes.NewReader([]byte(`{"referenceNumber":"INV-1"}`))}
-	c := newStubClient(http.StatusOK, body)
-	c.Debug = true
-	c.DebugBody = true
-
-	req := c.NewGetCustomerInvoiceV1Request()
-	req.SetPathParams(GetCustomerInvoiceV1PathParams{InvoiceNumber: "12345"})
-	var invoice ResponseInvoice
-	resp, err := c.Do((*Request)(&req), &invoice)
-	if err != nil {
-		t.Fatalf("unexpected error: %v", err)
-	}
-	if !body.closed {
-		t.Error("expected the original response body to be closed")
-	}
-	if got, err := io.ReadAll(resp.Body); err != nil {
-		t.Fatalf("failed to read the returned response body: %v", err)
-	} else if len(got) == 0 {
-		t.Error("expected the returned response body to be readable")
 	}
 }

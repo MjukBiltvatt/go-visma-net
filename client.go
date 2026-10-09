@@ -72,34 +72,32 @@ func (c *Client) Do(req *Request, body ...interface{}) (*http.Response, error) {
 		return resp, fmt.Errorf("http request failed: %w", err)
 	}
 
-	// The response body returned by the http client must be closed by us. Apart from releasing the
-	// connection, closing is also what disarms the http.Client.Timeout timer; reading the body to
-	// EOF does not. Leaving the timer armed makes net/http fall back to its legacy cancel path once
-	// it fires, which calls the deprecated CancelRequest on non-stdlib transports (for example
-	// oauth2.Transport, which then prints a deprecation warning to stderr).
-	// Keep a reference to the original body since debug dumping below replaces resp.Body with a copy.
-	origBody := resp.Body
-	defer origBody.Close()
+	// Read the whole response body and close it. Closing is required by net/http, and apart from
+	// releasing the connection it is also what disarms the http.Client.Timeout timer; reading the
+	// body to EOF does not. Leaving the timer armed makes net/http fall back to its legacy cancel
+	// path once it fires, which calls the deprecated CancelRequest on non-stdlib transports (for
+	// example oauth2.Transport, which then prints a deprecation warning to stderr).
+	var buf bytes.Buffer
+	_, readErr := io.Copy(&buf, resp.Body)
+	resp.Body.Close()
+
+	// The body has been consumed, so hand back an empty one. Like the drained body returned before,
+	// it reads as EOF and closes without error, and it doesn't keep the body bytes alive.
+	resp.Body = http.NoBody
+
+	if readErr != nil {
+		return resp, fmt.Errorf("failed to read response body: %w", readErr)
+	}
 
 	// Dump response if debugging is enabled
 	if c.Debug {
-		dump, err := httputil.DumpResponse(resp, c.DebugBody)
+		dumpResp := *resp
+		dumpResp.Body = io.NopCloser(bytes.NewReader(buf.Bytes()))
+		dump, err := httputil.DumpResponse(&dumpResp, c.DebugBody)
 		if err != nil {
 			return resp, fmt.Errorf("failed to dump response: %w", err)
 		}
 		fmt.Println(string(dump))
-	}
-
-	// Read the response body into a buffer
-	var buf bytes.Buffer
-	_, readErr := io.Copy(&buf, resp.Body)
-
-	// Replace the response body with the buffered copy. The original body is closed when Do
-	// returns, so this is what lets callers of Do read the body of the returned response.
-	resp.Body = io.NopCloser(bytes.NewReader(buf.Bytes()))
-
-	if readErr != nil {
-		return resp, fmt.Errorf("failed to read response body: %w", readErr)
 	}
 
 	// Check response status code
